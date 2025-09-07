@@ -1,0 +1,53 @@
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: clickhouse
+    environment:
+      CLICKHOUSE_DB: appdb
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: app
+    ports:
+      - "8123:8123" # HTTP
+      - "9000:9000" # Native
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    volumes:
+      - ./db/init_clean.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "bash", "-lc", "clickhouse-client --user=default --password='app' --query='SELECT 1' || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    build: ./backend
+    container_name: backend
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    environment:
+      - DB_URL=jdbc:clickhouse://clickhouse:8123/appdb
+      - DB_USERNAME=default
+      - DB_PASSWORD=app
+      - SERVER_PORT=8080
+      - CORS_ORIGIN=http://localhost:3000
+    ports:
+      - "8081:8080"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: http://localhost:8081
+    container_name: frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+networks:
+  default:
+    name: app-network
+

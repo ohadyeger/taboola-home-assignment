@@ -1,0 +1,26 @@
+# macOS
+.DS_Store
+
+# IDEs
+.idea/
+.vscode/
+
+# Node / Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env*
+
+# Java / Maven
+backend/target/
+backend/.classpath
+backend/.project
+backend/.settings/
+
+# Logs
+*.log
+logs/
+
+# Docker
+.env
+
+
