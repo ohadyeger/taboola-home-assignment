@@ -43,3 +43,14 @@ INSERT INTO appdb.ads_metrics (event_time, account, campaign, country, platform,
     (now() - INTERVAL 1 DAY, 'Acct A', 'Camp 2', 'GB', 'Web', 'Chrome', 20.00, 2000, 70),
     (now(),               'Acct B', 'Camp X', 'DE', 'Web', 'Firefox', 15.50, 1200, 40);
 
+-- Accounts table for simple user system
+CREATE TABLE IF NOT EXISTS appdb.accounts
+(
+    id UUID,
+    email String,
+    password_hash String,
+    created_at DateTime DEFAULT now()
+)
+ENGINE = MergeTree
+ORDER BY (email);
+
