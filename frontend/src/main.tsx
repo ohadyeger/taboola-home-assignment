@@ -26,7 +26,8 @@ const App: React.FC = () => {
   const [aggregatedData, setAggregatedData] = React.useState<AggregatedMetrics[]>([])
   const [showAggregation, setShowAggregation] = React.useState(true)
   const [groupByDimensions, setGroupByDimensions] = React.useState<string[]>([])
-  const [selectedMetrics, setSelectedMetrics] = React.useState<string[]>(['spent', 'impressions', 'clicks'])
+  const [clickedMetrics, setClickedMetrics] = React.useState<string[]>([])
+  const [selectedMetrics, setSelectedMetrics] = React.useState<string[]>([])
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | undefined>()
 
@@ -53,14 +54,17 @@ const App: React.FC = () => {
       },
       body: JSON.stringify({
         groupBy: groupByDimensions,
-        metrics: selectedMetrics
+        metrics: clickedMetrics
       })
     })
       .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
       .then((data: any) => setAggregatedData(data.data))
       .catch(e => setError(String(e)))
-      .finally(() => setLoading(false))
-  }, [token, groupByDimensions, selectedMetrics])
+      .finally(() => {
+        setSelectedMetrics(clickedMetrics)
+        setLoading(false)
+      })
+  }, [token, groupByDimensions, clickedMetrics])
 
   React.useEffect(() => { fetchAdMetrics() }, [fetchAdMetrics])
 
@@ -166,12 +170,12 @@ const App: React.FC = () => {
                   <label key={metric} style={{ display: 'flex', alignItems: 'center' }}>
                     <input
                       type="checkbox"
-                      checked={selectedMetrics.includes(metric)}
+                      checked={clickedMetrics.includes(metric)}
                       onChange={(e) => {
                         if (e.target.checked) {
-                          setSelectedMetrics([...selectedMetrics, metric])
+                          setClickedMetrics([...clickedMetrics, metric])
                         } else {
-                          setSelectedMetrics(selectedMetrics.filter(m => m !== metric))
+                          setClickedMetrics(clickedMetrics.filter(m => m !== metric))
                         }
                       }}
                       style={{ marginRight: 4 }}
@@ -182,7 +186,7 @@ const App: React.FC = () => {
               </div>
             </div>
             
-            <button onClick={fetchAggregatedData} disabled={loading || selectedMetrics.length === 0}>
+            <button onClick={fetchAggregatedData} disabled={loading || clickedMetrics.length === 0}>
               Generate Aggregation
             </button>
             
