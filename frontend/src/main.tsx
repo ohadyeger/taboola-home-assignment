@@ -1,7 +1,11 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 
-type Item = { id: number; name: string; createdAt: string }
+type AdMetrics = { 
+  day: string; week: string; month: string; account: string; campaign: string; 
+  country: string; platform: string; browser: string; 
+  spent: number; impressions: number; clicks: number 
+}
 
 const apiUrl: string = (import.meta as any).env.VITE_API_URL || 'http://localhost:8080'
 
@@ -10,22 +14,22 @@ const App: React.FC = () => {
   const [mode, setMode] = React.useState<'login' | 'register'>('login')
   const [email, setEmail] = React.useState('')
   const [password, setPassword] = React.useState('')
-  const [items, setItems] = React.useState<Item[]>([])
+  const [adMetrics, setAdMetrics] = React.useState<AdMetrics[]>([])
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | undefined>()
 
-  const fetchItems = React.useCallback(() => {
+  const fetchAdMetrics = React.useCallback(() => {
     if (!token) return
     setLoading(true)
     setError(undefined)
-    fetch(`${apiUrl}/api/items`, { headers: { Authorization: `Bearer ${token}` } })
+    fetch(`${apiUrl}/api/ads/my`, { headers: { Authorization: `Bearer ${token}` } })
       .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
-      .then((data: Item[]) => setItems(data))
+      .then((data: AdMetrics[]) => setAdMetrics(data))
       .catch(e => setError(String(e)))
       .finally(() => setLoading(false))
   }, [token])
 
-  React.useEffect(() => { fetchItems() }, [fetchItems])
+  React.useEffect(() => { fetchAdMetrics() }, [fetchAdMetrics])
 
   const submitAuth = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -54,7 +58,7 @@ const App: React.FC = () => {
   const logout = () => {
     localStorage.removeItem('token')
     setToken(null)
-    setItems([])
+    setAdMetrics([])
   }
 
   return (
@@ -86,19 +90,44 @@ const App: React.FC = () => {
       ) : (
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h2>Items</h2>
+            <h2>Ad Metrics</h2>
             <div>
-              <button onClick={fetchItems} disabled={loading} style={{ marginRight: 8 }}>Refresh</button>
+              <button onClick={fetchAdMetrics} disabled={loading} style={{ marginRight: 8 }}>Refresh</button>
               <button onClick={logout}>Logout</button>
             </div>
           </div>
           {loading && <p>Loading…</p>}
           {error && <p style={{ color: 'red' }}>Error: {error}</p>}
-          <ul>
-            {items.map(i => (
-              <li key={i.id}>{i.id}. {i.name} <small>({i.createdAt})</small></li>
-            ))}
-          </ul>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: '14px' }}>
+              <thead>
+                <tr style={{ backgroundColor: '#f5f5f5' }}>
+                  <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left' }}>Day</th>
+                  <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left' }}>Campaign</th>
+                  <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left' }}>Country</th>
+                  <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left' }}>Platform</th>
+                  <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left' }}>Browser</th>
+                  <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>Spent</th>
+                  <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>Impressions</th>
+                  <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>Clicks</th>
+                </tr>
+              </thead>
+              <tbody>
+                {adMetrics.map((ad, i) => (
+                  <tr key={i}>
+                    <td style={{ border: '1px solid #ddd', padding: 8 }}>{ad.day}</td>
+                    <td style={{ border: '1px solid #ddd', padding: 8 }}>{ad.campaign}</td>
+                    <td style={{ border: '1px solid #ddd', padding: 8 }}>{ad.country}</td>
+                    <td style={{ border: '1px solid #ddd', padding: 8 }}>{ad.platform}</td>
+                    <td style={{ border: '1px solid #ddd', padding: 8 }}>{ad.browser}</td>
+                    <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>${ad.spent.toFixed(2)}</td>
+                    <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>{ad.impressions.toLocaleString()}</td>
+                    <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>{ad.clicks.toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

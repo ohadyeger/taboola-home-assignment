@@ -38,10 +38,10 @@ ORDER BY (day, account, campaign, country, platform, browser);
 
 -- Seed sample rows
 INSERT INTO appdb.ads_metrics (event_time, account, campaign, country, platform, browser, spent, impressions, clicks) VALUES
-    (now() - INTERVAL 2 DAY, 'Acct A', 'Camp 1', 'US', 'iOS', 'Safari', 12.34, 1000, 45),
-    (now() - INTERVAL 2 DAY, 'Acct A', 'Camp 1', 'US', 'Android', 'Chrome', 8.21, 800, 30),
-    (now() - INTERVAL 1 DAY, 'Acct A', 'Camp 2', 'GB', 'Web', 'Chrome', 20.00, 2000, 70),
-    (now(),               'Acct B', 'Camp X', 'DE', 'Web', 'Firefox', 15.50, 1200, 40);
+    (now() - INTERVAL 2 DAY, 'admin@example.com', 'Camp 1', 'US', 'iOS', 'Safari', 12.34, 1000, 45),
+    (now() - INTERVAL 2 DAY, 'admin@example.com', 'Camp 1', 'US', 'Android', 'Chrome', 8.21, 800, 30),
+    (now() - INTERVAL 1 DAY, 'admin@example.com', 'Camp 2', 'GB', 'Web', 'Chrome', 20.00, 2000, 70),
+    (now(),               'user@example.com', 'Camp X', 'DE', 'Web', 'Firefox', 15.50, 1200, 40);
 
 -- Accounts table for simple user system
 CREATE TABLE IF NOT EXISTS appdb.accounts
