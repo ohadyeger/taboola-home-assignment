@@ -1,6 +1,14 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 
+type AggregatedMetrics = {
+  dimensions: Record<string, any>;
+  totalSpent: number;
+  totalImpressions: number;
+  totalClicks: number;
+  recordCount: number;
+}
+
 type AdMetrics = { 
   day: string; week: string; month: string; accountId: string; campaign: string; 
   country: string; platform: string; browser: string; 
@@ -15,6 +23,10 @@ const App: React.FC = () => {
   const [email, setEmail] = React.useState('')
   const [password, setPassword] = React.useState('')
   const [adMetrics, setAdMetrics] = React.useState<AdMetrics[]>([])
+  const [aggregatedData, setAggregatedData] = React.useState<AggregatedMetrics[]>([])
+  const [showAggregation, setShowAggregation] = React.useState(false)
+  const [groupByDimensions, setGroupByDimensions] = React.useState<string[]>([])
+  const [selectedMetrics, setSelectedMetrics] = React.useState<string[]>(['spent', 'impressions', 'clicks'])
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | undefined>()
 
@@ -28,6 +40,27 @@ const App: React.FC = () => {
       .catch(e => setError(String(e)))
       .finally(() => setLoading(false))
   }, [token])
+
+  const fetchAggregatedData = React.useCallback(() => {
+    if (!token) return
+    setLoading(true)
+    setError(undefined)
+    fetch(`${apiUrl}/api/aggregate`, {
+      method: 'POST',
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        groupBy: groupByDimensions,
+        metrics: selectedMetrics
+      })
+    })
+      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
+      .then((data: any) => setAggregatedData(data.data))
+      .catch(e => setError(String(e)))
+      .finally(() => setLoading(false))
+  }, [token, groupByDimensions, selectedMetrics])
 
   React.useEffect(() => { fetchAdMetrics() }, [fetchAdMetrics])
 
@@ -59,6 +92,8 @@ const App: React.FC = () => {
     localStorage.removeItem('token')
     setToken(null)
     setAdMetrics([])
+    setAggregatedData([])
+    setShowAggregation(false)
   }
 
   return (
@@ -92,6 +127,9 @@ const App: React.FC = () => {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h2>Ad Metrics</h2>
             <div>
+              <button onClick={() => setShowAggregation(!showAggregation)} style={{ marginRight: 8 }}>
+                {showAggregation ? 'Hide Aggregation' : 'Show Aggregation'}
+              </button>
               <button onClick={fetchAdMetrics} disabled={loading} style={{ marginRight: 8 }}>Refresh</button>
               <button onClick={logout}>Logout</button>
             </div>
@@ -128,6 +166,119 @@ const App: React.FC = () => {
               </tbody>
             </table>
           </div>
+          
+          {showAggregation && (
+            <div style={{ marginTop: 32 }}>
+              <h3>Data Aggregation</h3>
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', marginBottom: 8 }}>Group By Dimensions:</label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {['day', 'week', 'month', 'campaign', 'country', 'platform', 'browser'].map(dim => (
+                    <label key={dim} style={{ display: 'flex', alignItems: 'center' }}>
+                      <input
+                        type="checkbox"
+                        checked={groupByDimensions.includes(dim)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setGroupByDimensions([...groupByDimensions, dim])
+                          } else {
+                            setGroupByDimensions(groupByDimensions.filter(d => d !== dim))
+                          }
+                        }}
+                        style={{ marginRight: 4 }}
+                      />
+                      {dim}
+                    </label>
+                  ))}
+                </div>
+              </div>
+              
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', marginBottom: 8 }}>Metrics to Aggregate:</label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {['spent', 'impressions', 'clicks'].map(metric => (
+                    <label key={metric} style={{ display: 'flex', alignItems: 'center' }}>
+                      <input
+                        type="checkbox"
+                        checked={selectedMetrics.includes(metric)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedMetrics([...selectedMetrics, metric])
+                          } else {
+                            setSelectedMetrics(selectedMetrics.filter(m => m !== metric))
+                          }
+                        }}
+                        style={{ marginRight: 4 }}
+                      />
+                      {metric}
+                    </label>
+                  ))}
+                </div>
+              </div>
+              
+              <button onClick={fetchAggregatedData} disabled={loading || selectedMetrics.length === 0}>
+                Generate Aggregation
+              </button>
+              
+              {aggregatedData.length > 0 && (
+                <div style={{ marginTop: 16 }}>
+                  <h4>Aggregated Results:</h4>
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: '14px' }}>
+                      <thead>
+                        <tr style={{ backgroundColor: '#f5f5f5' }}>
+                          {groupByDimensions.map(dim => (
+                            <th key={dim} style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left' }}>
+                              {dim}
+                            </th>
+                          ))}
+                          {selectedMetrics.includes('spent') && (
+                            <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>Total Spent</th>
+                          )}
+                          {selectedMetrics.includes('impressions') && (
+                            <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>Total Impressions</th>
+                          )}
+                          {selectedMetrics.includes('clicks') && (
+                            <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>Total Clicks</th>
+                          )}
+                          <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>Records</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {aggregatedData.map((row, i) => (
+                          <tr key={i}>
+                            {groupByDimensions.map(dim => (
+                              <td key={dim} style={{ border: '1px solid #ddd', padding: 8 }}>
+                                {row.dimensions[dim] || '-'}
+                              </td>
+                            ))}
+                            {selectedMetrics.includes('spent') && (
+                              <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>
+                                ${row.totalSpent.toFixed(2)}
+                              </td>
+                            )}
+                            {selectedMetrics.includes('impressions') && (
+                              <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>
+                                {row.totalImpressions.toLocaleString()}
+                              </td>
+                            )}
+                            {selectedMetrics.includes('clicks') && (
+                              <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>
+                                {row.totalClicks.toLocaleString()}
+                              </td>
+                            )}
+                            <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>
+                              {row.recordCount}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>
