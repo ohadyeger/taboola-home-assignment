@@ -2,7 +2,7 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 
 type AdMetrics = { 
-  day: string; week: string; month: string; account: string; campaign: string; 
+  day: string; week: string; month: string; accountId: string; campaign: string; 
   country: string; platform: string; browser: string; 
   spent: number; impressions: number; clicks: number 
 }

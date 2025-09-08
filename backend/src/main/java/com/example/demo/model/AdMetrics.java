@@ -1,12 +1,13 @@
 package com.example.demo.model;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 public class AdMetrics {
     private String day;
     private String week;
     private String month;
-    private String account;
+    private UUID accountId;
     private String campaign;
     private String country;
     private String platform;
@@ -15,13 +16,13 @@ public class AdMetrics {
     private long impressions;
     private long clicks;
 
-    public AdMetrics(String day, String week, String month, String account, String campaign, 
+    public AdMetrics(String day, String week, String month, UUID accountId, String campaign, 
                      String country, String platform, String browser, BigDecimal spent, 
                      long impressions, long clicks) {
         this.day = day;
         this.week = week;
         this.month = month;
-        this.account = account;
+        this.accountId = accountId;
         this.campaign = campaign;
         this.country = country;
         this.platform = platform;
@@ -34,7 +35,7 @@ public class AdMetrics {
     public String getDay() { return day; }
     public String getWeek() { return week; }
     public String getMonth() { return month; }
-    public String getAccount() { return account; }
+    public UUID getAccountId() { return accountId; }
     public String getCampaign() { return campaign; }
     public String getCountry() { return country; }
     public String getPlatform() { return platform; }

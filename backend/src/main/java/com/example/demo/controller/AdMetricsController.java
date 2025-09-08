@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.model.AdMetrics;
+import com.example.demo.security.UserPrincipal;
 import com.example.demo.service.AdMetricsService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/ads")
@@ -28,13 +30,15 @@ public class AdMetricsController {
 
     @GetMapping("/my")
     public List<AdMetrics> getMyMetrics(Authentication auth) {
-        String userEmail = auth.getName();
+        UserPrincipal user = (UserPrincipal) auth.getPrincipal();
+        UUID userId = user.getUserId();
+        String userEmail = user.getEmail();
         
         // If user is admin, return all metrics; otherwise return only their own
         if (adminEmail.equals(userEmail)) {
             return adMetricsService.getAllMetrics();
         } else {
-            return adMetricsService.getMetricsByAccount(userEmail);
+            return adMetricsService.getMetricsByAccountId(userId);
         }
     }
 }

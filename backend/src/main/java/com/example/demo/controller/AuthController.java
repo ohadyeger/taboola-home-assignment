@@ -30,7 +30,7 @@ public class AuthController {
                 .<ResponseEntity<?>>map(a -> ResponseEntity.status(409).body(Map.of("error", "Email already registered")))
                 .orElseGet(() -> {
                     Account acc = authService.register(email, password);
-                    String token = jwtUtil.generateToken(acc.getEmail());
+                    String token = jwtUtil.generateToken(acc.getEmail(), acc.getId());
                     return ResponseEntity.ok(Map.of("token", token));
                 });
     }
@@ -41,7 +41,7 @@ public class AuthController {
         String password = body.getOrDefault("password", "");
         return authService.findByEmail(email)
                 .filter(a -> authService.verifyPassword(password, a.getPasswordHash()))
-                .<ResponseEntity<?>>map(a -> ResponseEntity.ok(Map.of("token", jwtUtil.generateToken(a.getEmail()))))
+                .<ResponseEntity<?>>map(a -> ResponseEntity.ok(Map.of("token", jwtUtil.generateToken(a.getEmail(), a.getId()))))
                 .orElseGet(() -> ResponseEntity.status(401).body(Map.of("error", "Invalid credentials")));
     }
 }
