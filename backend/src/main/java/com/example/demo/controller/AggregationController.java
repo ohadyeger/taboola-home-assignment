@@ -35,6 +35,7 @@ public class AggregationController {
             List<String> groupByDimensions = (List<String>) request.getOrDefault("groupBy", List.of());
             @SuppressWarnings("unchecked")
             List<String> metrics = (List<String>) request.getOrDefault("metrics", List.of("spent", "impressions", "clicks"));
+            String countryFilter = (String) request.getOrDefault("countryFilter", "All");
             
             // Validate metrics
             List<String> validMetrics = metrics.stream()
@@ -50,13 +51,14 @@ public class AggregationController {
             
             // Get aggregated data
             List<AggregatedMetrics> result = aggregationService.getAggregatedData(
-                userId, groupByDimensions, validMetrics, isAdmin
+                userId, groupByDimensions, validMetrics, countryFilter, isAdmin
             );
             
             return ResponseEntity.ok(Map.of(
                 "data", result,
                 "groupBy", groupByDimensions,
                 "metrics", validMetrics,
+                "countryFilter", countryFilter,
                 "isAdmin", isAdmin
             ));
             

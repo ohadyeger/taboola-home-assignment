@@ -4,6 +4,7 @@ import com.example.demo.model.AdMetrics;
 import com.example.demo.security.UserPrincipal;
 import com.example.demo.service.AdMetricsService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,17 +29,19 @@ public class AdMetricsController {
         return adMetricsService.getAllMetrics();
     }
 
-    @GetMapping("/my")
-    public List<AdMetrics> getMyMetrics(Authentication auth) {
+    @GetMapping("/countries")
+    public ResponseEntity<List<String>> getAvailableCountries(Authentication auth) {
         UserPrincipal user = (UserPrincipal) auth.getPrincipal();
         UUID userId = user.getUserId();
         String userEmail = user.getEmail();
         
-        // If user is admin, return all metrics; otherwise return only their own
+        // If user is admin, return all countries; otherwise return only their own
         if (adminEmail.equals(userEmail)) {
-            return adMetricsService.getAllMetrics();
+            List<String> countries = adMetricsService.getAvailableCountries();
+            return ResponseEntity.ok(countries);
         } else {
-            return adMetricsService.getMetricsByAccountId(userId);
+            List<String> countries = adMetricsService.getAvailableCountriesByAccountId(userId);
+            return ResponseEntity.ok(countries);
         }
     }
 }

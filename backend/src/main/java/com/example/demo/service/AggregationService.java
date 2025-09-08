@@ -17,7 +17,7 @@ public class AggregationService {
     }
 
     public List<AggregatedMetrics> getAggregatedData(UUID accountId, List<String> groupByDimensions, 
-                                                    List<String> metrics, boolean isAdmin) {
+                                                    List<String> metrics, String countryFilter, boolean isAdmin) {
         
         // Build the GROUP BY clause
         String groupByClause = groupByDimensions.isEmpty() ? "" : 
@@ -43,7 +43,16 @@ public class AggregationService {
         String metricSelect = String.join(", ", metricSelects);
         
         // Build WHERE clause
-        String whereClause = isAdmin ? "" : "WHERE account_id = ?";
+        List<String> whereConditions = new ArrayList<>();
+        if (!isAdmin) {
+            whereConditions.add("account_id = ?");
+        }
+        if (countryFilter != null && !countryFilter.equals("All")) {
+            whereConditions.add("country = ?");
+        }
+        
+        String whereClause = whereConditions.isEmpty() ? "" : 
+            "WHERE " + String.join(" AND ", whereConditions);
         
         // Build ORDER BY clause
         String orderByClause = groupByDimensions.isEmpty() ? "" : 
@@ -55,6 +64,14 @@ public class AggregationService {
         ).trim();
         
         // Execute query
+        List<Object> params = new ArrayList<>();
+        if (!isAdmin) {
+            params.add(accountId);
+        }
+        if (countryFilter != null && !countryFilter.equals("All")) {
+            params.add(countryFilter);
+        }
+        
         if (isAdmin) {
             return jdbcTemplate.query(sql, (rs, rowNum) -> {
                 Map<String, Object> dimensions = new HashMap<>();
@@ -68,7 +85,7 @@ public class AggregationService {
                 Integer recordCount = rs.getInt("record_count");
                 
                 return new AggregatedMetrics(dimensions, totalSpent, totalImpressions, totalClicks, recordCount);
-            });
+            }, params.toArray());
         } else {
             return jdbcTemplate.query(sql, (rs, rowNum) -> {
                 Map<String, Object> dimensions = new HashMap<>();
@@ -82,7 +99,7 @@ public class AggregationService {
                 Integer recordCount = rs.getInt("record_count");
                 
                 return new AggregatedMetrics(dimensions, totalSpent, totalImpressions, totalClicks, recordCount);
-            }, accountId);
+            }, params.toArray());
         }
     }
 }

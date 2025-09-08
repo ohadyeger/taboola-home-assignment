@@ -26,8 +26,11 @@ const App: React.FC = () => {
   const [aggregatedData, setAggregatedData] = React.useState<AggregatedMetrics[]>([])
   const [showAggregation, setShowAggregation] = React.useState(true)
   const [groupByDimensions, setGroupByDimensions] = React.useState<string[]>([])
+  const [clickedDimensions, setClickedDimensions] = React.useState<string[]>([])
   const [clickedMetrics, setClickedMetrics] = React.useState<string[]>([])
   const [selectedMetrics, setSelectedMetrics] = React.useState<string[]>([])
+  const [availableCountries, setAvailableCountries] = React.useState<string[]>([])
+  const [selectedCountry, setSelectedCountry] = React.useState<string>('All')
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | undefined>()
 
@@ -42,6 +45,14 @@ const App: React.FC = () => {
       .finally(() => setLoading(false))
   }, [token])
 
+  const fetchAvailableCountries = React.useCallback(() => {
+    if (!token) return
+    fetch(`${apiUrl}/api/ads/countries`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
+      .then((data: string[]) => setAvailableCountries(data))
+      .catch(e => setError(String(e)))
+  }, [token])
+
   const fetchAggregatedData = React.useCallback(() => {
     if (!token) return
     setLoading(true)
@@ -53,8 +64,9 @@ const App: React.FC = () => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        groupBy: groupByDimensions,
-        metrics: clickedMetrics
+        groupBy: clickedDimensions,
+        metrics: clickedMetrics,
+        countryFilter: selectedCountry
       })
     })
       .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
@@ -62,11 +74,13 @@ const App: React.FC = () => {
       .catch(e => setError(String(e)))
       .finally(() => {
         setSelectedMetrics(clickedMetrics)
+        setGroupByDimensions(clickedDimensions)
         setLoading(false)
       })
-  }, [token, groupByDimensions, clickedMetrics])
+  }, [token, clickedDimensions, clickedMetrics, selectedCountry])
 
   React.useEffect(() => { fetchAdMetrics() }, [fetchAdMetrics])
+  React.useEffect(() => { fetchAvailableCountries() }, [fetchAvailableCountries])
 
   const submitAuth = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -139,6 +153,23 @@ const App: React.FC = () => {
           {error && <p style={{ color: 'red' }}>Error: {error}</p>}
           
           <div style={{ marginBottom: 32 }}>
+            <h3>Filters</h3>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', marginBottom: 8 }}>Country:</label>
+              <select 
+                value={selectedCountry} 
+                onChange={(e) => setSelectedCountry(e.target.value)}
+                style={{ padding: 8, fontSize: '14px', minWidth: 120 }}
+              >
+                <option value="All">All</option>
+                {availableCountries.map(country => (
+                  <option key={country} value={country}>{country}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div style={{ marginBottom: 32 }}>
             <h3>Data Aggregation</h3>
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: 'block', marginBottom: 8 }}>Group By Dimensions:</label>
@@ -147,12 +178,12 @@ const App: React.FC = () => {
                   <label key={dim} style={{ display: 'flex', alignItems: 'center' }}>
                     <input
                       type="checkbox"
-                      checked={groupByDimensions.includes(dim)}
+                      checked={clickedDimensions.includes(dim)}
                       onChange={(e) => {
                         if (e.target.checked) {
-                          setGroupByDimensions([...groupByDimensions, dim])
+                          setClickedDimensions([...clickedDimensions, dim])
                         } else {
-                          setGroupByDimensions(groupByDimensions.filter(d => d !== dim))
+                          setClickedDimensions(clickedDimensions.filter(d => d !== dim))
                         }
                       }}
                       style={{ marginRight: 4 }}
