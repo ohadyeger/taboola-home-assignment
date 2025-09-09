@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.model.AdMetrics;
+import com.example.demo.model.PaginatedResponse;
 import com.example.demo.security.UserPrincipal;
 import com.example.demo.service.AdMetricsService;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -40,6 +42,23 @@ public class AdMetricsController {
             return adMetricsService.getAllMetrics();
         } else {
             return adMetricsService.getMetricsByAccountId(userId);
+        }
+    }
+
+    @GetMapping("/my/paginated")
+    public PaginatedResponse<AdMetrics> getMyMetricsPaginated(
+            Authentication auth,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        UserPrincipal user = (UserPrincipal) auth.getPrincipal();
+        UUID userId = user.getUserId();
+        String userEmail = user.getEmail();
+        
+        // If user is admin, return all metrics; otherwise return only their own
+        if (adminEmail.equals(userEmail)) {
+            return adMetricsService.getAllMetricsPaginated(page, size);
+        } else {
+            return adMetricsService.getMetricsByAccountIdPaginated(userId, page, size);
         }
     }
 
