@@ -110,4 +110,19 @@ public class AdMetricsService {
             accountId
         );
     }
+
+    public List<String> getAvailableBrowsers() {
+        return jdbcTemplate.queryForList(
+            "SELECT DISTINCT browser FROM appdb.ads_metrics ORDER BY browser",
+            String.class
+        );
+    }
+
+    public List<String> getAvailableBrowsersByAccountId(UUID accountId) {
+        return jdbcTemplate.queryForList(
+            "SELECT DISTINCT browser FROM appdb.ads_metrics WHERE account_id = ? ORDER BY browser",
+            String.class,
+            accountId
+        );
+    }
 }

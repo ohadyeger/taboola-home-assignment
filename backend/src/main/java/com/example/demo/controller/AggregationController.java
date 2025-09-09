@@ -38,6 +38,7 @@ public class AggregationController {
             String countryFilter = (String) request.getOrDefault("countryFilter", "All");
             String campaignFilter = (String) request.getOrDefault("campaignFilter", "All");
             String platformFilter = (String) request.getOrDefault("platformFilter", "All");
+            String browserFilter = (String) request.getOrDefault("browserFilter", "All");
             
             // Validate metrics
             List<String> validMetrics = metrics.stream()
@@ -53,7 +54,7 @@ public class AggregationController {
             
             // Get aggregated data
             List<AggregatedMetrics> result = aggregationService.getAggregatedData(
-                userId, groupByDimensions, validMetrics, countryFilter, campaignFilter, platformFilter, isAdmin
+                userId, groupByDimensions, validMetrics, countryFilter, campaignFilter, platformFilter, browserFilter, isAdmin
             );
             
             return ResponseEntity.ok(Map.of(
@@ -63,6 +64,7 @@ public class AggregationController {
                 "countryFilter", countryFilter,
                 "campaignFilter", campaignFilter,
                 "platformFilter", platformFilter,
+                "browserFilter", browserFilter,
                 "isAdmin", isAdmin
             ));
             

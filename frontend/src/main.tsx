@@ -35,6 +35,8 @@ const App: React.FC = () => {
   const [selectedCampaign, setSelectedCampaign] = React.useState<string>('All')
   const [availablePlatforms, setAvailablePlatforms] = React.useState<string[]>([])
   const [selectedPlatform, setSelectedPlatform] = React.useState<string>('All')
+  const [availableBrowsers, setAvailableBrowsers] = React.useState<string[]>([])
+  const [selectedBrowser, setSelectedBrowser] = React.useState<string>('All')
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | undefined>()
 
@@ -73,6 +75,14 @@ const App: React.FC = () => {
       .catch(e => setError(String(e)))
   }, [token])
 
+  const fetchAvailableBrowsers = React.useCallback(() => {
+    if (!token) return
+    fetch(`${apiUrl}/api/ads/browsers`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
+      .then((data: string[]) => setAvailableBrowsers(data))
+      .catch(e => setError(String(e)))
+  }, [token])
+
   const fetchAggregatedData = React.useCallback(() => {
     if (!token) return
     setLoading(true)
@@ -88,7 +98,8 @@ const App: React.FC = () => {
         metrics: clickedMetrics,
         countryFilter: selectedCountry,
         campaignFilter: selectedCampaign,
-        platformFilter: selectedPlatform
+        platformFilter: selectedPlatform,
+        browserFilter: selectedBrowser
       })
     })
       .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
@@ -99,12 +110,13 @@ const App: React.FC = () => {
         setGroupByDimensions(clickedDimensions)
         setLoading(false)
       })
-  }, [token, clickedDimensions, clickedMetrics, selectedCountry, selectedCampaign, selectedPlatform])
+  }, [token, clickedDimensions, clickedMetrics, selectedCountry, selectedCampaign, selectedPlatform, selectedBrowser])
 
   React.useEffect(() => { fetchAdMetrics() }, [fetchAdMetrics])
   React.useEffect(() => { fetchAvailableCountries() }, [fetchAvailableCountries])
   React.useEffect(() => { fetchAvailableCampaigns() }, [fetchAvailableCampaigns])
   React.useEffect(() => { fetchAvailablePlatforms() }, [fetchAvailablePlatforms])
+  React.useEffect(() => { fetchAvailableBrowsers() }, [fetchAvailableBrowsers])
 
   const submitAuth = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -215,6 +227,19 @@ const App: React.FC = () => {
                   <option value="All">All</option>
                   {availablePlatforms.map(platform => (
                     <option key={platform} value={platform}>{platform}</option>
+                  ))}
+                </select>
+              </div>
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', marginBottom: 8 }}>Browser:</label>
+                <select 
+                  value={selectedBrowser} 
+                  onChange={(e) => setSelectedBrowser(e.target.value)}
+                  style={{ padding: 8, fontSize: '14px', minWidth: 120 }}
+                >
+                  <option value="All">All</option>
+                  {availableBrowsers.map(browser => (
+                    <option key={browser} value={browser}>{browser}</option>
                   ))}
                 </select>
               </div>

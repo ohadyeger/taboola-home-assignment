@@ -90,4 +90,20 @@ public class AdMetricsController {
             return ResponseEntity.ok(platforms);
         }
     }
+
+    @GetMapping("/browsers")
+    public ResponseEntity<List<String>> getAvailableBrowsers(Authentication auth) {
+        UserPrincipal user = (UserPrincipal) auth.getPrincipal();
+        UUID userId = user.getUserId();
+        String userEmail = user.getEmail();
+        
+        // If user is admin, return all browsers; otherwise return only their own
+        if (adminEmail.equals(userEmail)) {
+            List<String> browsers = adMetricsService.getAvailableBrowsers();
+            return ResponseEntity.ok(browsers);
+        } else {
+            List<String> browsers = adMetricsService.getAvailableBrowsersByAccountId(userId);
+            return ResponseEntity.ok(browsers);
+        }
+    }
 }
