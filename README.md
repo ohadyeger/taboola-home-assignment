@@ -26,7 +26,7 @@ Services will start:
 - Backend (Spring Boot): `http://localhost:8080`
 - Frontend (React served by Nginx): `http://localhost:3000`
 
-Visit the frontend at `http://localhost:3000`. It calls the backend `GET /api/items`, which queries ClickHouse.
+Visit the frontend at `http://localhost:3000`. It provides ad metrics analytics with authentication and aggregation features.
 
 ## Project Structure
 
@@ -52,7 +52,10 @@ mvn -f backend/pom.xml spring-boot:run
 ```
 
 API:
-- `GET /api/items` → returns seeded items from ClickHouse
+- `GET /api/ads/my` → returns ad metrics for authenticated user
+- `POST /api/aggregate` → returns aggregated ad metrics data
+- `POST /auth/login` → user authentication
+- `POST /auth/register` → user registration
 
 ## Frontend
 
@@ -103,12 +106,11 @@ The application includes mock data for testing pagination and authentication. Th
 
 The application includes comprehensive mock data for testing:
 - **150+ AdMetrics records** across various campaigns, countries, platforms, and browsers
-- **50 items** for testing item pagination
 - **Multiple user accounts** for testing different user scenarios
 
 ## Notes
 
-- ClickHouse is initialized from `db/init.sql` with a simple `items` table and seed data.
+- ClickHouse is initialized from `db/init.sql` with ad metrics tables and seed data.
 - CORS is enabled for local development; configure via `CORS_ORIGIN`.
 - Mock data is automatically loaded from CSV files via the Java StartupSeeder.
 
