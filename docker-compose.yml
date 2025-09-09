@@ -50,17 +50,17 @@ services:
     depends_on:
       - backend
 
-  tabix:
-    image: tabixio/tabix:latest
-    container_name: tabix
-    ports:
-      - "8082:80"
-    environment:
-      - TABIX_SERVER_URL=http://clickhouse:8123
-      - TABIX_SERVER_LOGIN=default
-      - TABIX_SERVER_PASSWORD=app
-    depends_on:
-      - clickhouse
+  # tabix:
+  #   image: tabixio/tabix:latest
+  #   container_name: tabix
+  #   ports:
+  #     - "8082:80"
+  #   environment:
+  #     - TABIX_SERVER_URL=http://clickhouse:8123
+  #     - TABIX_SERVER_LOGIN=default
+  #     - TABIX_SERVER_PASSWORD=app
+  #   depends_on:
+  #     - clickhouse
 
 networks:
   default:

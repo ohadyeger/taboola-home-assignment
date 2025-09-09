@@ -15,7 +15,7 @@ type AdMetrics = {
   spent: number; impressions: number; clicks: number 
 }
 
-const apiUrl: string = (import.meta as any).env.VITE_API_URL || 'http://localhost:8080'
+const apiUrl: string = (import.meta as any).env.VITE_API_URL || 'http://localhost:8081'
 
 const App: React.FC = () => {
   const [token, setToken] = React.useState<string | null>(() => localStorage.getItem('token'))

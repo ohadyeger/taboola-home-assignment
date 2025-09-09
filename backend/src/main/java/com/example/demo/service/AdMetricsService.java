@@ -40,6 +40,32 @@ public class AdMetricsService {
         );
     }
 
+    public List<AdMetrics> getMetricsByAccountId(UUID accountId) {
+        return jdbcTemplate.query(
+            "SELECT toString(day) as day, toString(week) as week, toString(month) as month, " +
+            "account_id, campaign, country, platform, browser, " +
+            "sum(spent) as spent, sum(impressions) as impressions, sum(clicks) as clicks " +
+            "FROM appdb.ads_metrics " +
+            "WHERE account_id = ? " +
+            "GROUP BY day, week, month, account_id, campaign, country, platform, browser " +
+            "ORDER BY day DESC, campaign",
+            (rs, rowNum) -> new AdMetrics(
+                rs.getString("day"),
+                rs.getString("week"),
+                rs.getString("month"),
+                UUID.fromString(rs.getString("account_id")),
+                rs.getString("campaign"),
+                rs.getString("country"),
+                rs.getString("platform"),
+                rs.getString("browser"),
+                rs.getBigDecimal("spent"),
+                rs.getLong("impressions"),
+                rs.getLong("clicks")
+            ),
+            accountId
+        );
+    }
+
     public List<String> getAvailableCountries() {
         return jdbcTemplate.queryForList(
             "SELECT DISTINCT country FROM appdb.ads_metrics ORDER BY country",

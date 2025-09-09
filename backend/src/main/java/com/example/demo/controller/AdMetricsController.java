@@ -29,6 +29,20 @@ public class AdMetricsController {
         return adMetricsService.getAllMetrics();
     }
 
+    @GetMapping("/my")
+    public List<AdMetrics> getMyMetrics(Authentication auth) {
+        UserPrincipal user = (UserPrincipal) auth.getPrincipal();
+        UUID userId = user.getUserId();
+        String userEmail = user.getEmail();
+        
+        // If user is admin, return all metrics; otherwise return only their own
+        if (adminEmail.equals(userEmail)) {
+            return adMetricsService.getAllMetrics();
+        } else {
+            return adMetricsService.getMetricsByAccountId(userId);
+        }
+    }
+
     @GetMapping("/countries")
     public ResponseEntity<List<String>> getAvailableCountries(Authentication auth) {
         UserPrincipal user = (UserPrincipal) auth.getPrincipal();
