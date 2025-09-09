@@ -52,6 +52,10 @@ const App: React.FC = () => {
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | undefined>()
   
+  // Admin and UI state
+  const [isAdmin, setIsAdmin] = React.useState(false)
+  const [showRawData, setShowRawData] = React.useState(false)
+  
   // Pagination state
   const [currentPage, setCurrentPage] = React.useState(0)
   const [pageSize, setPageSize] = React.useState(10)
@@ -129,6 +133,17 @@ const App: React.FC = () => {
       .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
       .then((data: string[]) => setAvailableBrowsers(data))
       .catch(e => setError(String(e)))
+  }, [token])
+
+  const checkAdminStatus = React.useCallback(() => {
+    if (!token) return
+    fetch(`${apiUrl}/auth/me`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
+      .then((data: any) => setIsAdmin(data.isAdmin || false))
+      .catch(e => {
+        console.warn('Could not check admin status:', e)
+        setIsAdmin(false)
+      })
   }, [token])
 
   const fetchAggregatedData = React.useCallback(() => {
@@ -315,6 +330,7 @@ const App: React.FC = () => {
   React.useEffect(() => { fetchAvailableCampaigns() }, [fetchAvailableCampaigns])
   React.useEffect(() => { fetchAvailablePlatforms() }, [fetchAvailablePlatforms])
   React.useEffect(() => { fetchAvailableBrowsers() }, [fetchAvailableBrowsers])
+  React.useEffect(() => { checkAdminStatus() }, [checkAdminStatus])
   
   // Auto-fetch aggregated data when pagination or sorting changes
   React.useEffect(() => {
@@ -352,6 +368,8 @@ const App: React.FC = () => {
     setToken(null)
     setAdMetrics([])
     setAggregatedData([])
+    setIsAdmin(false)
+    setShowRawData(false)
   }
 
   return (
@@ -842,16 +860,35 @@ const App: React.FC = () => {
               ) : null}
             </div>
 
-            {/* Raw Data Section */}
-            <div className="card">
-              <div className="flex items-center gap-2 mb-6">
-                <svg className="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                </svg>
-                <h3 className="text-xl font-semibold text-gray-900">Raw Data</h3>
-              </div>
+            {/* Raw Data Section - Admin Only */}
+            {isAdmin && (
+              <div className="card">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-2">
+                    <svg className="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                    </svg>
+                    <h3 className="text-xl font-semibold text-gray-900">Raw Data</h3>
+                    <span className="px-2 py-1 text-xs font-medium text-red-600 bg-red-100 rounded-full">Admin Only</span>
+                  </div>
+                  <button
+                    onClick={() => setShowRawData(!showRawData)}
+                    className="btn-secondary flex items-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      {showRawData ? (
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                      ) : (
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      )}
+                    </svg>
+                    {showRawData ? 'Hide Raw Data' : 'Show Raw Data'}
+                  </button>
+                </div>
               
-              <div className="table-container">
+              {showRawData && (
+                <>
+                  <div className="table-container">
                 <table className="w-full">
                   <thead>
                     <tr className="table-header">
@@ -942,7 +979,10 @@ const App: React.FC = () => {
                   </button>
                 </div>
               </div>
+                </>
+              )}
             </div>
+            )}
           </div>
         )}
       </div>

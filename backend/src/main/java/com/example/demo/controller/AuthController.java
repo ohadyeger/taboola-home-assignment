@@ -2,8 +2,11 @@ package com.example.demo.controller;
 
 import com.example.demo.model.Account;
 import com.example.demo.security.JwtUtil;
+import com.example.demo.security.UserPrincipal;
 import com.example.demo.service.AuthService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -13,10 +16,12 @@ import java.util.Map;
 public class AuthController {
     private final AuthService authService;
     private final JwtUtil jwtUtil;
+    private final String adminEmail;
 
-    public AuthController(AuthService authService, JwtUtil jwtUtil) {
+    public AuthController(AuthService authService, JwtUtil jwtUtil, @Value("${app.admin.email}") String adminEmail) {
         this.authService = authService;
         this.jwtUtil = jwtUtil;
+        this.adminEmail = adminEmail;
     }
 
     @PostMapping("/register")
@@ -43,6 +48,17 @@ public class AuthController {
                 .filter(a -> authService.verifyPassword(password, a.getPasswordHash()))
                 .<ResponseEntity<?>>map(a -> ResponseEntity.ok(Map.of("token", jwtUtil.generateToken(a.getEmail(), a.getId()))))
                 .orElseGet(() -> ResponseEntity.status(401).body(Map.of("error", "Invalid credentials")));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(Authentication auth) {
+        UserPrincipal user = (UserPrincipal) auth.getPrincipal();
+        boolean isAdmin = adminEmail.equals(user.getEmail());
+        return ResponseEntity.ok(Map.of(
+            "email", user.getEmail(),
+            "userId", user.getUserId().toString(),
+            "isAdmin", isAdmin
+        ));
     }
 }
 
