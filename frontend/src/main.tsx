@@ -47,6 +47,8 @@ const App: React.FC = () => {
   const [selectedPlatform, setSelectedPlatform] = React.useState<string>('All')
   const [availableBrowsers, setAvailableBrowsers] = React.useState<string[]>([])
   const [selectedBrowser, setSelectedBrowser] = React.useState<string>('All')
+  const [startDate, setStartDate] = React.useState<string>('')
+  const [endDate, setEndDate] = React.useState<string>('')
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | undefined>()
   
@@ -175,6 +177,8 @@ const App: React.FC = () => {
         campaignFilter: selectedCampaign,
         platformFilter: selectedPlatform,
         browserFilter: selectedBrowser,
+        startDate: startDate,
+        endDate: endDate,
         page: aggCurrentPage,
         size: aggPageSize,
         sortBy: sortBy,
@@ -202,7 +206,7 @@ const App: React.FC = () => {
         setGroupByDimensions(clickedDimensions)
         setLoading(false)
       })
-  }, [token, clickedDimensions, clickedMetrics, selectedCountry, selectedCampaign, selectedPlatform, selectedBrowser, aggCurrentPage, aggPageSize, sortBy, sortDirection])
+  }, [token, clickedDimensions, clickedMetrics, selectedCountry, selectedCampaign, selectedPlatform, selectedBrowser, startDate, endDate, aggCurrentPage, aggPageSize, sortBy, sortDirection])
 
   const handleSort = (field: string) => {
     if (sortBy === field) {
@@ -353,6 +357,32 @@ const App: React.FC = () => {
                     <option key={browser} value={browser}>{browser}</option>
                   ))}
                 </select>
+              </div>
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', marginBottom: 8 }}>Date Range:</label>
+                <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: 4, fontSize: '14px' }}>Start Date:</label>
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      style={{ padding: 8, border: '1px solid #ccc', borderRadius: 4, fontSize: '14px' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: 4, fontSize: '14px' }}>End Date:</label>
+                    <input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      style={{ padding: 8, border: '1px solid #ccc', borderRadius: 4, fontSize: '14px' }}
+                    />
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#666', marginTop: 20 }}>
+                    (Leave empty for last week)
+                  </div>
+                </div>
               </div>
             </div>
           </div>

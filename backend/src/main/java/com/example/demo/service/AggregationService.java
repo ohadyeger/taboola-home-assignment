@@ -17,7 +17,7 @@ public class AggregationService {
     }
 
     public List<AggregatedMetrics> getAggregatedData(UUID accountId, List<String> groupByDimensions, 
-                                                    List<String> metrics, String countryFilter, String campaignFilter, String platformFilter, String browserFilter, boolean isAdmin, String sortBy, String sortDirection) {
+                                                    List<String> metrics, String countryFilter, String campaignFilter, String platformFilter, String browserFilter, boolean isAdmin, String sortBy, String sortDirection, String startDate, String endDate) {
         
         // Build the GROUP BY clause
         String groupByClause = groupByDimensions.isEmpty() ? "" : 
@@ -58,6 +58,12 @@ public class AggregationService {
         }
         if (browserFilter != null && !browserFilter.equals("All")) {
             whereConditions.add("browser = ?");
+        }
+        if (startDate != null && !startDate.isEmpty()) {
+            whereConditions.add("day >= ?");
+        }
+        if (endDate != null && !endDate.isEmpty()) {
+            whereConditions.add("day <= ?");
         }
         
         String whereClause = whereConditions.isEmpty() ? "" : 
@@ -111,6 +117,12 @@ public class AggregationService {
         if (browserFilter != null && !browserFilter.equals("All")) {
             params.add(browserFilter);
         }
+        if (startDate != null && !startDate.isEmpty()) {
+            params.add(startDate);
+        }
+        if (endDate != null && !endDate.isEmpty()) {
+            params.add(endDate);
+        }
         
         if (isAdmin) {
             return jdbcTemplate.query(sql, (rs, rowNum) -> {
@@ -144,7 +156,7 @@ public class AggregationService {
     }
 
     public PaginatedResponse<AggregatedMetrics> getAggregatedDataPaginated(UUID accountId, List<String> groupByDimensions, 
-                                                                          List<String> metrics, String countryFilter, String campaignFilter, String platformFilter, String browserFilter, boolean isAdmin, int page, int size, String sortBy, String sortDirection) {
+                                                                          List<String> metrics, String countryFilter, String campaignFilter, String platformFilter, String browserFilter, boolean isAdmin, int page, int size, String sortBy, String sortDirection, String startDate, String endDate) {
         
         int offset = page * size;
         
@@ -187,6 +199,12 @@ public class AggregationService {
         }
         if (browserFilter != null && !browserFilter.equals("All")) {
             whereConditions.add("browser = ?");
+        }
+        if (startDate != null && !startDate.isEmpty()) {
+            whereConditions.add("day >= ?");
+        }
+        if (endDate != null && !endDate.isEmpty()) {
+            whereConditions.add("day <= ?");
         }
         
         String whereClause = whereConditions.isEmpty() ? "" : 
@@ -248,6 +266,12 @@ public class AggregationService {
         if (browserFilter != null && !browserFilter.equals("All")) {
             countParams.add(browserFilter);
         }
+        if (startDate != null && !startDate.isEmpty()) {
+            countParams.add(startDate);
+        }
+        if (endDate != null && !endDate.isEmpty()) {
+            countParams.add(endDate);
+        }
         
         Long totalCount = jdbcTemplate.queryForObject(countSql, Long.class, countParams.toArray());
         if (totalCount == null) totalCount = 0L;
@@ -271,6 +295,12 @@ public class AggregationService {
         }
         if (browserFilter != null && !browserFilter.equals("All")) {
             params.add(browserFilter);
+        }
+        if (startDate != null && !startDate.isEmpty()) {
+            params.add(startDate);
+        }
+        if (endDate != null && !endDate.isEmpty()) {
+            params.add(endDate);
         }
         params.add(size);
         params.add(offset);

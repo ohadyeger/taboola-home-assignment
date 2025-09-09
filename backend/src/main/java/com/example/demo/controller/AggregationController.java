@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +45,16 @@ public class AggregationController {
             String browserFilter = (String) request.getOrDefault("browserFilter", "All");
             String sortBy = (String) request.getOrDefault("sortBy", "");
             String sortDirection = (String) request.getOrDefault("sortDirection", "asc");
+            String startDate = (String) request.getOrDefault("startDate", "");
+            String endDate = (String) request.getOrDefault("endDate", "");
+            
+            // Set default date range to last week if not provided
+            if (startDate.isEmpty() || endDate.isEmpty()) {
+                LocalDate today = LocalDate.now();
+                LocalDate lastWeek = today.minusWeeks(1);
+                startDate = lastWeek.format(DateTimeFormatter.ISO_LOCAL_DATE);
+                endDate = today.format(DateTimeFormatter.ISO_LOCAL_DATE);
+            }
             
             // Validate metrics
             List<String> validMetrics = metrics.stream()
@@ -58,7 +70,7 @@ public class AggregationController {
             
             // Get aggregated data
             List<AggregatedMetrics> result = aggregationService.getAggregatedData(
-                userId, groupByDimensions, validMetrics, countryFilter, campaignFilter, platformFilter, browserFilter, isAdmin, sortBy, sortDirection
+                userId, groupByDimensions, validMetrics, countryFilter, campaignFilter, platformFilter, browserFilter, isAdmin, sortBy, sortDirection, startDate, endDate
             );
             
             return ResponseEntity.ok(Map.of(
@@ -69,6 +81,8 @@ public class AggregationController {
                 "campaignFilter", campaignFilter,
                 "platformFilter", platformFilter,
                 "browserFilter", browserFilter,
+                "startDate", startDate,
+                "endDate", endDate,
                 "isAdmin", isAdmin
             ));
             
@@ -105,6 +119,16 @@ public class AggregationController {
             int size = (Integer) request.getOrDefault("size", 10);
             String sortBy = (String) request.getOrDefault("sortBy", "");
             String sortDirection = (String) request.getOrDefault("sortDirection", "asc");
+            String startDate = (String) request.getOrDefault("startDate", "");
+            String endDate = (String) request.getOrDefault("endDate", "");
+            
+            // Set default date range to last week if not provided
+            if (startDate.isEmpty() || endDate.isEmpty()) {
+                LocalDate today = LocalDate.now();
+                LocalDate lastWeek = today.minusWeeks(1);
+                startDate = lastWeek.format(DateTimeFormatter.ISO_LOCAL_DATE);
+                endDate = today.format(DateTimeFormatter.ISO_LOCAL_DATE);
+            }
             
             // Validate metrics
             List<String> validMetrics = metrics.stream()
@@ -120,7 +144,7 @@ public class AggregationController {
             
             // Get paginated aggregated data
             PaginatedResponse<AggregatedMetrics> result = aggregationService.getAggregatedDataPaginated(
-                userId, groupByDimensions, validMetrics, countryFilter, campaignFilter, platformFilter, browserFilter, isAdmin, page, size, sortBy, sortDirection
+                userId, groupByDimensions, validMetrics, countryFilter, campaignFilter, platformFilter, browserFilter, isAdmin, page, size, sortBy, sortDirection, startDate, endDate
             );
             
             Map<String, Object> response = new HashMap<>();
@@ -137,6 +161,8 @@ public class AggregationController {
             response.put("campaignFilter", campaignFilter);
             response.put("platformFilter", platformFilter);
             response.put("browserFilter", browserFilter);
+            response.put("startDate", startDate);
+            response.put("endDate", endDate);
             response.put("isAdmin", isAdmin);
             
             return ResponseEntity.ok(response);
