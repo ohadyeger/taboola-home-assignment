@@ -39,10 +39,11 @@ export const AuthForm: React.FC<AuthFormProps> = ({
           </p>
         </div>
         
-        <form onSubmit={onSubmit} className="space-y-4">
+        <form onSubmit={onSubmit} className="space-y-4" role="form">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">Email</label>
             <input 
+              id="email"
               value={email} 
               onChange={e => onEmailChange(e.target.value)} 
               type="email" 
@@ -52,8 +53,9 @@ export const AuthForm: React.FC<AuthFormProps> = ({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">Password</label>
             <input 
+              id="password"
               value={password} 
               onChange={e => onPasswordChange(e.target.value)} 
               type="password" 

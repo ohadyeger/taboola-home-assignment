@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 import java.util.List;
+import java.util.Objects;
 
 public class PaginatedResponse<T> {
     private List<T> data;
@@ -19,8 +20,8 @@ public class PaginatedResponse<T> {
         this.totalPages = totalPages;
         this.totalElements = totalElements;
         this.pageSize = pageSize;
-        this.hasNext = currentPage < totalPages;
-        this.hasPrevious = currentPage > 1;
+        this.hasNext = currentPage < totalPages - 1;
+        this.hasPrevious = currentPage > 0;
     }
 
     // Getters and setters
@@ -78,5 +79,37 @@ public class PaginatedResponse<T> {
 
     public void setHasPrevious(boolean hasPrevious) {
         this.hasPrevious = hasPrevious;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PaginatedResponse<?> that = (PaginatedResponse<?>) o;
+        return currentPage == that.currentPage &&
+                totalPages == that.totalPages &&
+                totalElements == that.totalElements &&
+                pageSize == that.pageSize &&
+                hasNext == that.hasNext &&
+                hasPrevious == that.hasPrevious &&
+                Objects.equals(data, that.data);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(data, currentPage, totalPages, totalElements, pageSize, hasNext, hasPrevious);
+    }
+
+    @Override
+    public String toString() {
+        return "PaginatedResponse{" +
+                "data=" + data +
+                ", currentPage=" + currentPage +
+                ", totalPages=" + totalPages +
+                ", totalElements=" + totalElements +
+                ", pageSize=" + pageSize +
+                ", hasNext=" + hasNext +
+                ", hasPrevious=" + hasPrevious +
+                '}';
     }
 }

@@ -22,7 +22,8 @@ export const useAdMetrics = (token: string | null) => {
       const data = await apiClient.requestWithAuth<AdMetrics[]>('/api/ads/my', token)
       setAdMetrics(data)
     } catch (e) {
-      setError(String(e))
+      const errorMessage = String(e)
+      setError(errorMessage.startsWith('Error: ') ? errorMessage.substring(7) : errorMessage)
     } finally {
       setLoading(false)
     }
@@ -45,7 +46,8 @@ export const useAdMetrics = (token: string | null) => {
         totalElements: data.totalElements
       }))
     } catch (e) {
-      setError(String(e))
+      const errorMessage = String(e)
+      setError(errorMessage.startsWith('Error: ') ? errorMessage.substring(7) : errorMessage)
       // If token is invalid, clear it
       if (String(e).includes('401') || String(e).includes('403')) {
         localStorage.removeItem('token')
