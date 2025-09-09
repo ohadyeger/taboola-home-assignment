@@ -5,10 +5,12 @@ import com.example.demo.model.PaginatedResponse;
 import com.example.demo.security.UserPrincipal;
 import com.example.demo.service.AggregationService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.StringWriter;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -169,6 +171,179 @@ public class AggregationController {
             
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", "Invalid request: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/export/csv")
+    public ResponseEntity<?> exportAggregatedDataAsCsv(@RequestBody Map<String, Object> request, Authentication auth) {
+        try {
+            UserPrincipal user = (UserPrincipal) auth.getPrincipal();
+            UUID userId = user.getUserId();
+            String userEmail = user.getEmail();
+            
+            // Extract parameters from request
+            @SuppressWarnings("unchecked")
+            List<String> groupByDimensions = (List<String>) request.getOrDefault("groupBy", List.of());
+            @SuppressWarnings("unchecked")
+            List<String> metrics = (List<String>) request.getOrDefault("metrics", List.of("spent", "impressions", "clicks"));
+            String countryFilter = (String) request.getOrDefault("countryFilter", "All");
+            String campaignFilter = (String) request.getOrDefault("campaignFilter", "All");
+            String platformFilter = (String) request.getOrDefault("platformFilter", "All");
+            String browserFilter = (String) request.getOrDefault("browserFilter", "All");
+            String sortBy = (String) request.getOrDefault("sortBy", "");
+            String sortDirection = (String) request.getOrDefault("sortDirection", "asc");
+            String startDate = (String) request.getOrDefault("startDate", "");
+            String endDate = (String) request.getOrDefault("endDate", "");
+            
+            // Set default date range to last week if not provided
+            if (startDate.isEmpty() || endDate.isEmpty()) {
+                LocalDate today = LocalDate.now();
+                LocalDate lastWeek = today.minusWeeks(1);
+                startDate = lastWeek.format(DateTimeFormatter.ISO_LOCAL_DATE);
+                endDate = today.format(DateTimeFormatter.ISO_LOCAL_DATE);
+            }
+            
+            // Validate metrics
+            List<String> validMetrics = metrics.stream()
+                .filter(m -> List.of("spent", "impressions", "clicks").contains(m))
+                .collect(java.util.stream.Collectors.toList());
+            
+            if (validMetrics.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "At least one valid metric must be specified"));
+            }
+            
+            // Check if user is admin
+            boolean isAdmin = adminEmail.equals(userEmail);
+            
+            // Get aggregated data
+            List<AggregatedMetrics> result = aggregationService.getAggregatedData(
+                userId, groupByDimensions, validMetrics, countryFilter, campaignFilter, platformFilter, browserFilter, isAdmin, sortBy, sortDirection, startDate, endDate
+            );
+            
+            // Generate CSV content
+            StringWriter csvWriter = new StringWriter();
+            
+            // Write CSV header
+            csvWriter.append(String.join(",", groupByDimensions));
+            if (validMetrics.contains("spent")) csvWriter.append(",Total Spent");
+            if (validMetrics.contains("impressions")) csvWriter.append(",Total Impressions");
+            if (validMetrics.contains("clicks")) csvWriter.append(",Total Clicks");
+            csvWriter.append(",Record Count\n");
+            
+            // Write CSV data
+            for (AggregatedMetrics metric : result) {
+                List<String> row = new java.util.ArrayList<>();
+                
+                // Add dimension values
+                for (String dim : groupByDimensions) {
+                    Object value = metric.getDimensions().get(dim);
+                    String stringValue = value != null ? value.toString() : "";
+                    // Escape commas and quotes in CSV
+                    if (stringValue.contains(",") || stringValue.contains("\"")) {
+                        stringValue = "\"" + stringValue.replace("\"", "\"\"") + "\"";
+                    }
+                    row.add(stringValue);
+                }
+                
+                // Add metric values
+                if (validMetrics.contains("spent")) {
+                    row.add(metric.getTotalSpent().toString());
+                }
+                if (validMetrics.contains("impressions")) {
+                    row.add(metric.getTotalImpressions().toString());
+                }
+                if (validMetrics.contains("clicks")) {
+                    row.add(metric.getTotalClicks().toString());
+                }
+                row.add(metric.getRecordCount().toString());
+                
+                csvWriter.append(String.join(",", row)).append("\n");
+            }
+            
+            String csvContent = csvWriter.toString();
+            String filename = "aggregated_data_" + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE) + ".csv";
+            
+            return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .header(HttpHeaders.CONTENT_TYPE, "text/csv")
+                .body(csvContent);
+            
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Export failed: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/export/json")
+    public ResponseEntity<?> exportAggregatedDataAsJson(@RequestBody Map<String, Object> request, Authentication auth) {
+        try {
+            UserPrincipal user = (UserPrincipal) auth.getPrincipal();
+            UUID userId = user.getUserId();
+            String userEmail = user.getEmail();
+            
+            // Extract parameters from request
+            @SuppressWarnings("unchecked")
+            List<String> groupByDimensions = (List<String>) request.getOrDefault("groupBy", List.of());
+            @SuppressWarnings("unchecked")
+            List<String> metrics = (List<String>) request.getOrDefault("metrics", List.of("spent", "impressions", "clicks"));
+            String countryFilter = (String) request.getOrDefault("countryFilter", "All");
+            String campaignFilter = (String) request.getOrDefault("campaignFilter", "All");
+            String platformFilter = (String) request.getOrDefault("platformFilter", "All");
+            String browserFilter = (String) request.getOrDefault("browserFilter", "All");
+            String sortBy = (String) request.getOrDefault("sortBy", "");
+            String sortDirection = (String) request.getOrDefault("sortDirection", "asc");
+            String startDate = (String) request.getOrDefault("startDate", "");
+            String endDate = (String) request.getOrDefault("endDate", "");
+            
+            // Set default date range to last week if not provided
+            if (startDate.isEmpty() || endDate.isEmpty()) {
+                LocalDate today = LocalDate.now();
+                LocalDate lastWeek = today.minusWeeks(1);
+                startDate = lastWeek.format(DateTimeFormatter.ISO_LOCAL_DATE);
+                endDate = today.format(DateTimeFormatter.ISO_LOCAL_DATE);
+            }
+            
+            // Validate metrics
+            List<String> validMetrics = metrics.stream()
+                .filter(m -> List.of("spent", "impressions", "clicks").contains(m))
+                .collect(java.util.stream.Collectors.toList());
+            
+            if (validMetrics.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "At least one valid metric must be specified"));
+            }
+            
+            // Check if user is admin
+            boolean isAdmin = adminEmail.equals(userEmail);
+            
+            // Get aggregated data
+            List<AggregatedMetrics> result = aggregationService.getAggregatedData(
+                userId, groupByDimensions, validMetrics, countryFilter, campaignFilter, platformFilter, browserFilter, isAdmin, sortBy, sortDirection, startDate, endDate
+            );
+            
+            // Create export metadata
+            Map<String, Object> exportData = new HashMap<>();
+            exportData.put("exportDate", LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE));
+            exportData.put("groupByDimensions", groupByDimensions);
+            exportData.put("metrics", validMetrics);
+            exportData.put("filters", Map.of(
+                "country", countryFilter,
+                "campaign", campaignFilter,
+                "platform", platformFilter,
+                "browser", browserFilter,
+                "startDate", startDate,
+                "endDate", endDate
+            ));
+            exportData.put("totalRecords", result.size());
+            exportData.put("data", result);
+            
+            String filename = "aggregated_data_" + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE) + ".json";
+            
+            return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .header(HttpHeaders.CONTENT_TYPE, "application/json")
+                .body(exportData);
+            
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Export failed: " + e.getMessage()));
         }
     }
 }

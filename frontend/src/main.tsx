@@ -34,7 +34,6 @@ const App: React.FC = () => {
   const [password, setPassword] = React.useState('')
   const [adMetrics, setAdMetrics] = React.useState<AdMetrics[]>([])
   const [aggregatedData, setAggregatedData] = React.useState<AggregatedMetrics[]>([])
-  const [showAggregation, setShowAggregation] = React.useState(true)
   const [groupByDimensions, setGroupByDimensions] = React.useState<string[]>([])
   const [clickedDimensions, setClickedDimensions] = React.useState<string[]>([])
   const [clickedMetrics, setClickedMetrics] = React.useState<string[]>([])
@@ -220,6 +219,96 @@ const App: React.FC = () => {
     setAggCurrentPage(0) // Reset to first page when sorting
   }
 
+  const exportToCsv = async () => {
+    if (!token || clickedMetrics.length === 0) return
+    
+    try {
+      setLoading(true)
+      const response = await fetch(`${apiUrl}/api/aggregate/export/csv`, {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          groupBy: clickedDimensions,
+          metrics: clickedMetrics,
+          countryFilter: selectedCountry,
+          campaignFilter: selectedCampaign,
+          platformFilter: selectedPlatform,
+          browserFilter: selectedBrowser,
+          startDate: startDate,
+          endDate: endDate,
+          sortBy: sortBy,
+          sortDirection: sortDirection
+        })
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`)
+      }
+      
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `aggregated_data_${new Date().toISOString().split('T')[0]}.csv`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    } catch (e) {
+      setError(String(e))
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const exportToJson = async () => {
+    if (!token || clickedMetrics.length === 0) return
+    
+    try {
+      setLoading(true)
+      const response = await fetch(`${apiUrl}/api/aggregate/export/json`, {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          groupBy: clickedDimensions,
+          metrics: clickedMetrics,
+          countryFilter: selectedCountry,
+          campaignFilter: selectedCampaign,
+          platformFilter: selectedPlatform,
+          browserFilter: selectedBrowser,
+          startDate: startDate,
+          endDate: endDate,
+          sortBy: sortBy,
+          sortDirection: sortDirection
+        })
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`)
+      }
+      
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `aggregated_data_${new Date().toISOString().split('T')[0]}.json`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    } catch (e) {
+      setError(String(e))
+    } finally {
+      setLoading(false)
+    }
+  }
+
   React.useEffect(() => { fetchPaginatedAdMetrics() }, [fetchPaginatedAdMetrics])
   React.useEffect(() => { fetchAvailableCountries() }, [fetchAvailableCountries])
   React.useEffect(() => { fetchAvailableCampaigns() }, [fetchAvailableCampaigns])
@@ -262,7 +351,6 @@ const App: React.FC = () => {
     setToken(null)
     setAdMetrics([])
     setAggregatedData([])
-    setShowAggregation(false)
   }
 
   return (
@@ -435,15 +523,51 @@ const App: React.FC = () => {
               </div>
             </div>
             
-            <button 
-              onClick={() => {
-                setAggCurrentPage(0) // Reset to first page when generating new aggregation
-                fetchPaginatedAggregatedData()
-              }} 
-              disabled={loading || clickedMetrics.length === 0}
-            >
-              Generate Aggregation
-            </button>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+              <button 
+                onClick={() => {
+                  setAggCurrentPage(0) // Reset to first page when generating new aggregation
+                  fetchPaginatedAggregatedData()
+                }} 
+                disabled={loading || clickedMetrics.length === 0}
+              >
+                Generate Aggregation
+              </button>
+              
+              {aggregatedData.length > 0 && (
+                <>
+                  <button 
+                    onClick={exportToCsv}
+                    disabled={loading || clickedMetrics.length === 0}
+                    style={{ 
+                      backgroundColor: '#28a745', 
+                      color: 'white', 
+                      border: 'none', 
+                      padding: '8px 12px', 
+                      borderRadius: 4,
+                      cursor: loading || clickedMetrics.length === 0 ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    Export CSV
+                  </button>
+                  
+                  <button 
+                    onClick={exportToJson}
+                    disabled={loading || clickedMetrics.length === 0}
+                    style={{ 
+                      backgroundColor: '#17a2b8', 
+                      color: 'white', 
+                      border: 'none', 
+                      padding: '8px 12px', 
+                      borderRadius: 4,
+                      cursor: loading || clickedMetrics.length === 0 ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    Export JSON
+                  </button>
+                </>
+              )}
+            </div>
             
             {aggregatedData.length > 0 && (
               <div style={{ marginTop: 16 }}>
