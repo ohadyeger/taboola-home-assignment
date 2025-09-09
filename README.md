@@ -76,10 +76,41 @@ Open `http://localhost:5173`.
 - Frontend:
   - `VITE_API_URL` (default in compose: `http://localhost:8080`)
 
+## Testing Users
+
+The application includes mock data for testing pagination and authentication. The following users are automatically created:
+
+### Admin User
+- **Email**: `admin@example.com`
+- **Password**: `admin123`
+- **Access**: Full access to all metrics (admin privileges)
+
+### Test Users
+- **Email**: `user1@example.com` | **Password**: `password123`
+- **Email**: `user2@example.com` | **Password**: `password123`
+- **Email**: `user3@example.com` | **Password**: `password123`
+- **Email**: `user4@example.com` | **Password**: `password123`
+- **Email**: `user5@example.com` | **Password**: `password123`
+- **Email**: `user6@example.com` | **Password**: `password123`
+- **Email**: `user7@example.com` | **Password**: `password123`
+- **Email**: `user8@example.com` | **Password**: `password123`
+- **Email**: `user9@example.com` | **Password**: `password123`
+- **Email**: `user10@example.com` | **Password**: `password123`
+
+**Note**: All test users have the same password (`password123`) for convenience during testing.
+
+## Mock Data
+
+The application includes comprehensive mock data for testing:
+- **150+ AdMetrics records** across various campaigns, countries, platforms, and browsers
+- **50 items** for testing item pagination
+- **Multiple user accounts** for testing different user scenarios
+
 ## Notes
 
 - ClickHouse is initialized from `db/init.sql` with a simple `items` table and seed data.
 - CORS is enabled for local development; configure via `CORS_ORIGIN`.
+- Mock data is automatically loaded from CSV files via the Java StartupSeeder.
 
 ## Common Commands
 
