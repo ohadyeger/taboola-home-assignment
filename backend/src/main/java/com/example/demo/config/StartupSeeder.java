@@ -34,13 +34,13 @@ public class StartupSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        // Create admin account
+        // Load mock accounts from CSV first
+        loadMockAccounts();
+        
+        // Create admin account (only if it doesn't exist)
         authService.findByEmail(adminEmail.toLowerCase()).orElseGet(() -> {
             return authService.register(adminEmail.toLowerCase(), adminPassword);
         });
-
-        // Load mock accounts from CSV
-        loadMockAccounts();
         
         // Load mock ad metrics from CSV
         loadMockAdMetrics();
