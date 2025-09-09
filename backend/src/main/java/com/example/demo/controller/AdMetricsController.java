@@ -74,4 +74,20 @@ public class AdMetricsController {
             return ResponseEntity.ok(campaigns);
         }
     }
+
+    @GetMapping("/platforms")
+    public ResponseEntity<List<String>> getAvailablePlatforms(Authentication auth) {
+        UserPrincipal user = (UserPrincipal) auth.getPrincipal();
+        UUID userId = user.getUserId();
+        String userEmail = user.getEmail();
+        
+        // If user is admin, return all platforms; otherwise return only their own
+        if (adminEmail.equals(userEmail)) {
+            List<String> platforms = adMetricsService.getAvailablePlatforms();
+            return ResponseEntity.ok(platforms);
+        } else {
+            List<String> platforms = adMetricsService.getAvailablePlatformsByAccountId(userId);
+            return ResponseEntity.ok(platforms);
+        }
+    }
 }

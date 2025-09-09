@@ -33,6 +33,8 @@ const App: React.FC = () => {
   const [selectedCountry, setSelectedCountry] = React.useState<string>('All')
   const [availableCampaigns, setAvailableCampaigns] = React.useState<string[]>([])
   const [selectedCampaign, setSelectedCampaign] = React.useState<string>('All')
+  const [availablePlatforms, setAvailablePlatforms] = React.useState<string[]>([])
+  const [selectedPlatform, setSelectedPlatform] = React.useState<string>('All')
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | undefined>()
 
@@ -63,6 +65,14 @@ const App: React.FC = () => {
       .catch(e => setError(String(e)))
   }, [token])
 
+  const fetchAvailablePlatforms = React.useCallback(() => {
+    if (!token) return
+    fetch(`${apiUrl}/api/ads/platforms`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
+      .then((data: string[]) => setAvailablePlatforms(data))
+      .catch(e => setError(String(e)))
+  }, [token])
+
   const fetchAggregatedData = React.useCallback(() => {
     if (!token) return
     setLoading(true)
@@ -77,7 +87,8 @@ const App: React.FC = () => {
         groupBy: clickedDimensions,
         metrics: clickedMetrics,
         countryFilter: selectedCountry,
-        campaignFilter: selectedCampaign
+        campaignFilter: selectedCampaign,
+        platformFilter: selectedPlatform
       })
     })
       .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
@@ -88,11 +99,12 @@ const App: React.FC = () => {
         setGroupByDimensions(clickedDimensions)
         setLoading(false)
       })
-  }, [token, clickedDimensions, clickedMetrics, selectedCountry, selectedCampaign])
+  }, [token, clickedDimensions, clickedMetrics, selectedCountry, selectedCampaign, selectedPlatform])
 
   React.useEffect(() => { fetchAdMetrics() }, [fetchAdMetrics])
   React.useEffect(() => { fetchAvailableCountries() }, [fetchAvailableCountries])
   React.useEffect(() => { fetchAvailableCampaigns() }, [fetchAvailableCampaigns])
+  React.useEffect(() => { fetchAvailablePlatforms() }, [fetchAvailablePlatforms])
 
   const submitAuth = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -190,6 +202,19 @@ const App: React.FC = () => {
                   <option value="All">All</option>
                   {availableCampaigns.map(campaign => (
                     <option key={campaign} value={campaign}>{campaign}</option>
+                  ))}
+                </select>
+              </div>
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', marginBottom: 8 }}>Platform:</label>
+                <select 
+                  value={selectedPlatform} 
+                  onChange={(e) => setSelectedPlatform(e.target.value)}
+                  style={{ padding: 8, fontSize: '14px', minWidth: 120 }}
+                >
+                  <option value="All">All</option>
+                  {availablePlatforms.map(platform => (
+                    <option key={platform} value={platform}>{platform}</option>
                   ))}
                 </select>
               </div>

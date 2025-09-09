@@ -95,4 +95,19 @@ public class AdMetricsService {
             accountId
         );
     }
+
+    public List<String> getAvailablePlatforms() {
+        return jdbcTemplate.queryForList(
+            "SELECT DISTINCT platform FROM appdb.ads_metrics ORDER BY platform",
+            String.class
+        );
+    }
+
+    public List<String> getAvailablePlatformsByAccountId(UUID accountId) {
+        return jdbcTemplate.queryForList(
+            "SELECT DISTINCT platform FROM appdb.ads_metrics WHERE account_id = ? ORDER BY platform",
+            String.class,
+            accountId
+        );
+    }
 }
