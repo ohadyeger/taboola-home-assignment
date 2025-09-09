@@ -24,6 +24,14 @@ A full-stack application for analyzing advertising metrics with advanced aggrega
    - Frontend: http://localhost:3000
    - Backend API: http://localhost:8081
 
+## 🎥 Demo
+
+Watch the application in action:
+
+[![App Demo](https://img.youtube.com/vi/YOUR_VIDEO_ID/0.jpg)](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
+
+*Replace `YOUR_VIDEO_ID` with your actual YouTube video ID*
+
 ## 👥 Default Users
 
 ### Admin User
@@ -50,8 +58,9 @@ npm test
 
 ## 📋 Documentation
 
-- **[Design Document](DESIGN.md)** - Complete technical architecture, API reference, testing strategy, and implementation details
-- **[Frontend Refactoring Notes](frontend/REFACTORING.md)** - Frontend architecture and component structure
+- **[Design Document](docs/DESIGN.md)** - Complete technical architecture, API reference, testing strategy, and implementation details
+- **[Development Prompts](docs/PROMPTS.md)** - Comprehensive list of AI prompts used to build this project
+- **[Frontend Refactoring Notes](docs/REFACTORING.md)** - Frontend architecture and component structure
 
 ## 🏗️ Technology Stack
 
