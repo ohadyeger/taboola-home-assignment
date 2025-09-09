@@ -49,6 +49,8 @@ services:
       - "3000:80"
     depends_on:
       - backend
+    environment:
+      - VITE_API_URL=http://localhost:8081
 
   # tabix:
   #   image: tabixio/tabix:latest
