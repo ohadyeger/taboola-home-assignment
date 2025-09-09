@@ -46,6 +46,11 @@ export const useAdMetrics = (token: string | null) => {
       }))
     } catch (e) {
       setError(String(e))
+      // If token is invalid, clear it
+      if (String(e).includes('401') || String(e).includes('403')) {
+        localStorage.removeItem('token')
+        window.location.reload()
+      }
     } finally {
       setLoading(false)
     }

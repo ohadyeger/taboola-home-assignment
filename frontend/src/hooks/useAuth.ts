@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react'
 import { apiClient } from '../utils/apiClient'
-import { AdMetrics, PaginatedResponse, AggregatedMetrics, FilterState, AggregationState, PaginationState, SortState } from '../types'
 
 export const useAuth = () => {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'))
@@ -60,6 +59,11 @@ export const useAuth = () => {
     } catch (e) {
       console.warn('Could not check admin status:', e)
       setIsAdmin(false)
+      // If token is invalid, clear it
+      if (String(e).includes('401') || String(e).includes('403')) {
+        localStorage.removeItem('token')
+        setToken(null)
+      }
     }
   }, [token])
 

@@ -1,6 +1,5 @@
 import React from 'react'
 import { AdMetrics } from '../../types'
-import { Card } from '../ui/Card'
 import { Pagination } from '../ui/Pagination'
 
 interface RawDataTableProps {
@@ -22,15 +21,7 @@ export const RawDataTable: React.FC<RawDataTableProps> = ({
   onPageSizeChange
 }) => {
   return (
-    <Card>
-      <div className="flex items-center gap-2 mb-6">
-        <svg className="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-        </svg>
-        <h3 className="text-xl font-semibold text-gray-900">Raw Data</h3>
-        <span className="px-2 py-1 text-xs font-medium text-red-600 bg-red-100 rounded-full">Admin Only</span>
-      </div>
-      
+    <div>
       <div className="table-container">
         <table className="w-full">
           <thead>
@@ -70,6 +61,6 @@ export const RawDataTable: React.FC<RawDataTableProps> = ({
         totalElements={pagination.totalElements}
         onPageSizeChange={onPageSizeChange}
       />
-    </Card>
+    </div>
   )
 }
