@@ -34,9 +34,23 @@ A full-stack application for analyzing advertising metrics with advanced aggrega
 - **Emails**: `user1@example.com` through `user10@example.com`
 - **Password**: `password123`
 
+## 🧪 Testing
+
+### Backend Tests
+```bash
+cd backend
+mvn test
+```
+
+### Frontend Tests
+```bash
+cd frontend
+npm test
+```
+
 ## 📋 Documentation
 
-- **[Design Document](DESIGN.md)** - Complete technical architecture, API reference, and implementation details
+- **[Design Document](DESIGN.md)** - Complete technical architecture, API reference, testing strategy, and implementation details
 - **[Frontend Refactoring Notes](frontend/REFACTORING.md)** - Frontend architecture and component structure
 
 ## 🏗️ Technology Stack

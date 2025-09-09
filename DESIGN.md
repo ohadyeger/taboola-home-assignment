@@ -9,10 +9,11 @@
 6. [Security Architecture](#security-architecture)
 7. [Frontend Architecture](#frontend-architecture)
 8. [Database Design](#database-design)
-9. [Performance Considerations](#performance-considerations)
-10. [Deployment Architecture](#deployment-architecture)
-11. [Development Workflow](#development-workflow)
-12. [Future Enhancements](#future-enhancements)
+9. [Testing Strategy](#testing-strategy)
+10. [Performance Considerations](#performance-considerations)
+11. [Deployment Architecture](#deployment-architecture)
+12. [Development Workflow](#development-workflow)
+13. [Future Enhancements](#future-enhancements)
 
 ## Overview
 
@@ -337,6 +338,213 @@ GROUP BY day, campaign, country
 ORDER BY totalSpent DESC
 LIMIT ? OFFSET ?
 ```
+
+## Testing Strategy
+
+### Testing Philosophy
+
+The application follows a comprehensive testing strategy that ensures reliability, maintainability, and confidence in deployments. The testing approach covers multiple layers of the application stack with appropriate tools and frameworks for each component.
+
+### Backend Testing (Spring Boot + JUnit 5)
+
+#### Test Structure
+```
+backend/src/test/java/com/example/demo/
+├── controller/           # API endpoint tests
+│   ├── AdMetricsControllerTest.java
+│   └── AuthControllerTest.java
+├── model/               # Data model validation tests
+│   ├── AdMetricsTest.java
+│   ├── AggregatedMetricsTest.java
+│   └── PaginatedResponseTest.java
+└── service/             # Business logic tests
+    ├── AdMetricsServiceTest.java
+    └── AuthServiceTest.java
+```
+
+#### Testing Technologies
+- **JUnit 5**: Primary testing framework
+- **Mockito**: Mocking framework for dependencies
+- **Spring Boot Test**: Integration testing support
+- **Spring Security Test**: Security testing utilities
+- **H2 Database**: In-memory database for testing
+
+#### Test Categories
+
+##### Unit Tests
+- **Model Tests**: Validate data model behavior and constraints
+- **Service Tests**: Test business logic with mocked dependencies
+- **Controller Tests**: Verify API endpoint behavior and response handling
+
+##### Integration Tests
+- **Database Integration**: Test ClickHouse queries with test data
+- **Security Integration**: Verify JWT authentication and authorization
+- **API Integration**: End-to-end API testing
+
+#### Test Coverage Areas
+
+##### Authentication & Authorization
+- JWT token generation and validation
+- Role-based access control (admin vs regular users)
+- Login/logout functionality
+- Password validation and security
+
+##### Ad Metrics Processing
+- Data aggregation logic
+- Pagination implementation
+- Filtering and sorting
+- Export functionality (CSV/JSON)
+
+##### Data Validation
+- Input validation and sanitization
+- Error handling and response formatting
+- Edge cases and boundary conditions
+
+#### Running Backend Tests
+```bash
+# Run all tests
+mvn test
+
+# Run specific test class
+mvn test -Dtest=AdMetricsControllerTest
+
+# Run tests with coverage
+mvn test jacoco:report
+
+# Skip tests during build
+mvn package -DskipTests
+```
+
+### Frontend Testing (React + Vitest)
+
+#### Test Structure
+```
+frontend/src/
+├── components/
+│   ├── auth/__tests__/
+│   │   └── AuthForm.test.tsx
+│   └── ui/__tests__/
+│       ├── Button.test.tsx
+│       ├── Card.test.tsx
+│       ├── ErrorAlert.test.tsx
+│       └── LoadingSpinner.test.tsx
+├── hooks/__tests__/
+│   ├── useAdMetrics.test.ts
+│   └── useAuth.test.ts
+├── utils/__tests__/
+│   └── apiClient.test.ts
+└── test/
+    └── setup.ts
+```
+
+#### Testing Technologies
+- **Vitest**: Fast unit testing framework
+- **React Testing Library**: Component testing utilities
+- **Jest DOM**: Custom matchers for DOM testing
+- **User Event**: User interaction simulation
+- **JSDOM**: DOM environment for testing
+
+#### Test Categories
+
+##### Component Tests
+- **UI Components**: Button, Card, ErrorAlert, LoadingSpinner
+- **Form Components**: AuthForm with validation testing
+- **Integration**: Component interaction and state management
+
+##### Hook Tests
+- **Custom Hooks**: useAuth, useAdMetrics functionality
+- **State Management**: Hook state updates and side effects
+- **API Integration**: Mock API calls and error handling
+
+##### Utility Tests
+- **API Client**: HTTP request handling and error management
+- **Helper Functions**: Data transformation and validation
+
+#### Test Configuration
+
+##### Vitest Configuration (`vitest.config.ts`)
+```typescript
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./src/test/setup.ts'],
+    css: true,
+  },
+})
+```
+
+##### Test Setup (`src/test/setup.ts`)
+```typescript
+import '@testing-library/jest-dom'
+```
+
+#### Running Frontend Tests
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with UI
+npm run test:ui
+
+# Generate coverage report
+npm run test:coverage
+```
+
+### Test Data Management
+
+#### Backend Test Data
+- **Mock Accounts**: Test user accounts with different roles
+- **Mock Metrics**: Realistic advertising metrics data
+- **H2 Database**: In-memory database for isolated testing
+- **Test Profiles**: Separate application profiles for testing
+
+#### Frontend Test Data
+- **Mock API Responses**: Realistic data for component testing
+- **User Interactions**: Simulated user actions and form submissions
+- **Error Scenarios**: Network failures and validation errors
+
+### Continuous Integration Testing
+
+#### Automated Test Execution
+- **Pre-commit Hooks**: Run tests before code commits
+- **CI Pipeline**: Automated testing on pull requests
+- **Coverage Reports**: Track test coverage metrics
+- **Quality Gates**: Prevent deployment with failing tests
+
+#### Test Environment
+- **Docker Integration**: Consistent test environments
+- **Database Seeding**: Automated test data setup
+- **Environment Isolation**: Separate test configurations
+
+### Testing Best Practices
+
+#### Backend Testing
+- **AAA Pattern**: Arrange, Act, Assert structure
+- **Mock External Dependencies**: Isolate units under test
+- **Test Data Builders**: Reusable test data creation
+- **Parameterized Tests**: Test multiple scenarios efficiently
+
+#### Frontend Testing
+- **User-Centric Testing**: Test from user perspective
+- **Accessibility Testing**: Ensure UI accessibility
+- **Performance Testing**: Component rendering performance
+- **Cross-browser Testing**: Ensure compatibility
+
+### Coverage Goals
+- **Backend**: 80%+ code coverage
+- **Frontend**: 70%+ component and hook coverage
+- **Critical Paths**: 100% coverage for authentication and data processing
+
+### Future Testing Enhancements
+- **E2E Testing**: Cypress or Playwright integration
+- **Performance Testing**: Load testing for API endpoints
+- **Visual Regression Testing**: UI consistency testing
+- **Contract Testing**: API contract validation
 
 ## Performance Considerations
 
