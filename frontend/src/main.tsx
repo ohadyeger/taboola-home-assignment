@@ -1,5 +1,6 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
+import './index.css'
 
 type AggregatedMetrics = {
   dimensions: Record<string, any>;
@@ -354,497 +355,597 @@ const App: React.FC = () => {
   }
 
   return (
-    <div style={{ fontFamily: 'sans-serif', padding: 24, maxWidth: 720 }}>
-      <h1>Demo App</h1>
-      {!token ? (
-        <div style={{ border: '1px solid #ddd', padding: 16, borderRadius: 8, maxWidth: 420 }}>
-          <h2>{mode === 'login' ? 'Login' : 'Register'}</h2>
-          <form onSubmit={submitAuth}>
-            <div style={{ marginBottom: 8 }}>
-              <label>Email<br />
-                <input value={email} onChange={e => setEmail(e.target.value)} type="email" required style={{ width: '100%', padding: 8 }} />
-              </label>
-            </div>
-            <div style={{ marginBottom: 8 }}>
-              <label>Password<br />
-                <input value={password} onChange={e => setPassword(e.target.value)} type="password" required style={{ width: '100%', padding: 8 }} />
-              </label>
-            </div>
-            <button type="submit" disabled={loading} style={{ padding: '8px 12px' }}>
-              {loading ? 'Please wait…' : (mode === 'login' ? 'Login' : 'Register')}
-            </button>
-            <button type="button" style={{ marginLeft: 8 }} onClick={() => setMode(mode === 'login' ? 'register' : 'login')}>
-              {mode === 'login' ? 'Need an account? Register' : 'Have an account? Login'}
-            </button>
-          </form>
-          {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Taboola Ad Metrics Dashboard</h1>
+          <p className="text-gray-600">Comprehensive analytics and reporting platform</p>
         </div>
-      ) : (
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h2>Ad Metrics</h2>
-            <div>
-              <button onClick={fetchAdMetrics} disabled={loading} style={{ marginRight: 8 }}>Refresh</button>
-              <button onClick={logout}>Logout</button>
-            </div>
-          </div>
-          {loading && <p>Loading…</p>}
-          {error && <p style={{ color: 'red' }}>Error: {error}</p>}
-          
-          <div style={{ marginBottom: 32 }}>
-            <h3>Filters</h3>
-            <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
-              <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', marginBottom: 8 }}>Country:</label>
-                <select 
-                  value={selectedCountry} 
-                  onChange={(e) => setSelectedCountry(e.target.value)}
-                  style={{ padding: 8, fontSize: '14px', minWidth: 120 }}
-                >
-                  <option value="All">All</option>
-                  {availableCountries.map(country => (
-                    <option key={country} value={country}>{country}</option>
-                  ))}
-                </select>
+
+        {!token ? (
+          <div className="max-w-md mx-auto">
+            <div className="card">
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+                  {mode === 'login' ? 'Welcome Back' : 'Create Account'}
+                </h2>
+                <p className="text-gray-600">
+                  {mode === 'login' ? 'Sign in to access your dashboard' : 'Get started with your analytics'}
+                </p>
               </div>
-              <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', marginBottom: 8 }}>Campaign:</label>
-                <select 
-                  value={selectedCampaign} 
-                  onChange={(e) => setSelectedCampaign(e.target.value)}
-                  style={{ padding: 8, fontSize: '14px', minWidth: 120 }}
+              
+              <form onSubmit={submitAuth} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                  <input 
+                    value={email} 
+                    onChange={e => setEmail(e.target.value)} 
+                    type="email" 
+                    required 
+                    className="input-field"
+                    placeholder="Enter your email"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                  <input 
+                    value={password} 
+                    onChange={e => setPassword(e.target.value)} 
+                    type="password" 
+                    required 
+                    className="input-field"
+                    placeholder="Enter your password"
+                  />
+                </div>
+                <button type="submit" disabled={loading} className="btn-primary w-full">
+                  {loading ? (
+                    <div className="flex items-center justify-center">
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Please wait…
+                    </div>
+                  ) : (
+                    mode === 'login' ? 'Sign In' : 'Create Account'
+                  )}
+                </button>
+                <button 
+                  type="button" 
+                  className="btn-secondary w-full" 
+                  onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
                 >
-                  <option value="All">All</option>
-                  {availableCampaigns.map(campaign => (
-                    <option key={campaign} value={campaign}>{campaign}</option>
-                  ))}
-                </select>
-              </div>
-              <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', marginBottom: 8 }}>Platform:</label>
-                <select 
-                  value={selectedPlatform} 
-                  onChange={(e) => setSelectedPlatform(e.target.value)}
-                  style={{ padding: 8, fontSize: '14px', minWidth: 120 }}
-                >
-                  <option value="All">All</option>
-                  {availablePlatforms.map(platform => (
-                    <option key={platform} value={platform}>{platform}</option>
-                  ))}
-                </select>
-              </div>
-              <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', marginBottom: 8 }}>Browser:</label>
-                <select 
-                  value={selectedBrowser} 
-                  onChange={(e) => setSelectedBrowser(e.target.value)}
-                  style={{ padding: 8, fontSize: '14px', minWidth: 120 }}
-                >
-                  <option value="All">All</option>
-                  {availableBrowsers.map(browser => (
-                    <option key={browser} value={browser}>{browser}</option>
-                  ))}
-                </select>
-              </div>
-              <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', marginBottom: 8 }}>Date Range:</label>
-                <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-                  <div>
-                    <label style={{ display: 'block', marginBottom: 4, fontSize: '14px' }}>Start Date:</label>
-                    <input
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                      style={{ padding: 8, border: '1px solid #ccc', borderRadius: 4, fontSize: '14px' }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', marginBottom: 4, fontSize: '14px' }}>End Date:</label>
-                    <input
-                      type="date"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                      style={{ padding: 8, border: '1px solid #ccc', borderRadius: 4, fontSize: '14px' }}
-                    />
-                  </div>
-                  <div style={{ fontSize: '12px', color: '#666', marginTop: 20 }}>
-                    (Leave empty for last week)
+                  {mode === 'login' ? 'Need an account? Register' : 'Have an account? Sign In'}
+                </button>
+              </form>
+              
+              {error && (
+                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="flex">
+                    <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                    <div className="ml-3">
+                      <p className="text-sm text-red-800">Error: {error}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          <div style={{ marginBottom: 32 }}>
-            <h3>Data Aggregation</h3>
-            <div style={{ marginBottom: 16 }}>
-              <label style={{ display: 'block', marginBottom: 8 }}>Group By Dimensions:</label>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                {['day', 'week', 'month', 'campaign', 'country', 'platform', 'browser'].map(dim => (
-                  <label key={dim} style={{ display: 'flex', alignItems: 'center' }}>
-                    <input
-                      type="checkbox"
-                      checked={clickedDimensions.includes(dim)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setClickedDimensions([...clickedDimensions, dim])
-                        } else {
-                          setClickedDimensions(clickedDimensions.filter(d => d !== dim))
-                        }
-                      }}
-                      style={{ marginRight: 4 }}
-                    />
-                    {dim}
-                  </label>
-                ))}
-              </div>
-            </div>
-            
-            <div style={{ marginBottom: 16 }}>
-              <label style={{ display: 'block', marginBottom: 8 }}>Metrics to Aggregate:</label>
-              <div style={{ display: 'flex', gap: 8 }}>
-                {['spent', 'impressions', 'clicks'].map(metric => (
-                  <label key={metric} style={{ display: 'flex', alignItems: 'center' }}>
-                    <input
-                      type="checkbox"
-                      checked={clickedMetrics.includes(metric)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setClickedMetrics([...clickedMetrics, metric])
-                        } else {
-                          setClickedMetrics(clickedMetrics.filter(m => m !== metric))
-                        }
-                      }}
-                      style={{ marginRight: 4 }}
-                    />
-                    {metric}
-                  </label>
-                ))}
-              </div>
-            </div>
-            
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-              <button 
-                onClick={() => {
-                  setAggCurrentPage(0) // Reset to first page when generating new aggregation
-                  fetchPaginatedAggregatedData()
-                }} 
-                disabled={loading || clickedMetrics.length === 0}
-              >
-                Generate Aggregation
-              </button>
-              
-              {aggregatedData.length > 0 && (
-                <>
-                  <button 
-                    onClick={exportToCsv}
-                    disabled={loading || clickedMetrics.length === 0}
-                    style={{ 
-                      backgroundColor: '#28a745', 
-                      color: 'white', 
-                      border: 'none', 
-                      padding: '8px 12px', 
-                      borderRadius: 4,
-                      cursor: loading || clickedMetrics.length === 0 ? 'not-allowed' : 'pointer'
-                    }}
-                  >
-                    Export CSV
-                  </button>
-                  
-                  <button 
-                    onClick={exportToJson}
-                    disabled={loading || clickedMetrics.length === 0}
-                    style={{ 
-                      backgroundColor: '#17a2b8', 
-                      color: 'white', 
-                      border: 'none', 
-                      padding: '8px 12px', 
-                      borderRadius: 4,
-                      cursor: loading || clickedMetrics.length === 0 ? 'not-allowed' : 'pointer'
-                    }}
-                  >
-                    Export JSON
-                  </button>
-                </>
               )}
             </div>
+          </div>
+        ) : (
+          <div className="space-y-8">
+            {/* Dashboard Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h2 className="text-3xl font-bold text-gray-900">Ad Metrics Dashboard</h2>
+                <p className="text-gray-600 mt-1">Monitor and analyze your advertising performance</p>
+              </div>
+              <div className="flex gap-3">
+                <button 
+                  onClick={fetchAdMetrics} 
+                  disabled={loading} 
+                  className="btn-secondary flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  Refresh
+                </button>
+                <button onClick={logout} className="btn-secondary flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  Logout
+                </button>
+              </div>
+            </div>
+
+            {/* Loading and Error States */}
+            {loading && (
+              <div className="flex items-center justify-center py-12">
+                <div className="flex items-center gap-3">
+                  <svg className="animate-spin h-6 w-6 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span className="text-lg text-gray-600">Loading data...</span>
+                </div>
+              </div>
+            )}
             
-            {aggregatedData.length > 0 && (
-              <div style={{ marginTop: 16 }}>
-                <h4>Aggregated Results:</h4>
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: '14px' }}>
-                    <thead>
-                      <tr style={{ backgroundColor: '#f5f5f5' }}>
-                        {groupByDimensions.map(dim => (
-                          <th key={dim} style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left' }}>
-                            {dim}
-                          </th>
-                        ))}
-                        {selectedMetrics.includes('spent') && (
-                          <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right', cursor: 'pointer' }} onClick={() => handleSort('spent')}>
-                            Total Spent {sortBy === 'spent' && (sortDirection === 'asc' ? '↑' : '↓')}
-                          </th>
-                        )}
-                        {selectedMetrics.includes('impressions') && (
-                          <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right', cursor: 'pointer' }} onClick={() => handleSort('impressions')}>
-                            Total Impressions {sortBy === 'impressions' && (sortDirection === 'asc' ? '↑' : '↓')}
-                          </th>
-                        )}
-                        {selectedMetrics.includes('clicks') && (
-                          <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right', cursor: 'pointer' }} onClick={() => handleSort('clicks')}>
-                            Total Clicks {sortBy === 'clicks' && (sortDirection === 'asc' ? '↑' : '↓')}
-                          </th>
-                        )}
-                        <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>Records</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {aggregatedData.map((row, i) => (
-                        <tr key={i}>
-                          {groupByDimensions.map(dim => (
-                            <td key={dim} style={{ border: '1px solid #ddd', padding: 8 }}>
-                              {row.dimensions[dim] || '-'}
-                            </td>
-                          ))}
-                          {selectedMetrics.includes('spent') && (
-                            <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>
-                              ${row.totalSpent.toFixed(2)}
-                            </td>
-                          )}
-                          {selectedMetrics.includes('impressions') && (
-                            <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>
-                              {row.totalImpressions.toLocaleString()}
-                            </td>
-                          )}
-                          {selectedMetrics.includes('clicks') && (
-                            <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>
-                              {row.totalClicks.toLocaleString()}
-                            </td>
-                          )}
-                          <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>
-                            {row.recordCount}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+            {error && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex">
+                  <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                  <div className="ml-3">
+                    <p className="text-sm text-red-800">Error: {error}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {/* Filters Section */}
+            <div className="card">
+              <div className="flex items-center gap-2 mb-6">
+                <svg className="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
+                </svg>
+                <h3 className="text-xl font-semibold text-gray-900">Filters</h3>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
+                  <select 
+                    value={selectedCountry} 
+                    onChange={(e) => setSelectedCountry(e.target.value)}
+                    className="select-field w-full"
+                  >
+                    <option value="All">All Countries</option>
+                    {availableCountries.map(country => (
+                      <option key={country} value={country}>{country}</option>
+                    ))}
+                  </select>
                 </div>
                 
-                {/* Aggregation Pagination Controls */}
-                <div style={{ marginTop: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                    <span>Page size:</span>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Campaign</label>
+                  <select 
+                    value={selectedCampaign} 
+                    onChange={(e) => setSelectedCampaign(e.target.value)}
+                    className="select-field w-full"
+                  >
+                    <option value="All">All Campaigns</option>
+                    {availableCampaigns.map(campaign => (
+                      <option key={campaign} value={campaign}>{campaign}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Platform</label>
+                  <select 
+                    value={selectedPlatform} 
+                    onChange={(e) => setSelectedPlatform(e.target.value)}
+                    className="select-field w-full"
+                  >
+                    <option value="All">All Platforms</option>
+                    {availablePlatforms.map(platform => (
+                      <option key={platform} value={platform}>{platform}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Browser</label>
+                  <select 
+                    value={selectedBrowser} 
+                    onChange={(e) => setSelectedBrowser(e.target.value)}
+                    className="select-field w-full"
+                  >
+                    <option value="All">All Browsers</option>
+                    {availableBrowsers.map(browser => (
+                      <option key={browser} value={browser}>{browser}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="md:col-span-2 lg:col-span-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">Start Date</label>
+                      <input
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        className="input-field text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">End Date</label>
+                      <input
+                        type="date"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        className="input-field text-sm"
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500">Leave empty for last week</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Data Aggregation Section */}
+            <div className="card">
+              <div className="flex items-center gap-2 mb-6">
+                <svg className="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                <h3 className="text-xl font-semibold text-gray-900">Data Aggregation</h3>
+              </div>
+              
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">Group By Dimensions</label>
+                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+                    {['day', 'week', 'month', 'campaign', 'country', 'platform', 'browser'].map(dim => (
+                      <label key={dim} className="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={clickedDimensions.includes(dim)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setClickedDimensions([...clickedDimensions, dim])
+                            } else {
+                              setClickedDimensions(clickedDimensions.filter(d => d !== dim))
+                            }
+                          }}
+                          className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                        />
+                        <span className="text-sm font-medium text-gray-700 capitalize">{dim}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">Metrics to Aggregate</label>
+                  <div className="flex gap-4">
+                    {['spent', 'impressions', 'clicks'].map(metric => (
+                      <label key={metric} className="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={clickedMetrics.includes(metric)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setClickedMetrics([...clickedMetrics, metric])
+                            } else {
+                              setClickedMetrics(clickedMetrics.filter(m => m !== metric))
+                            }
+                          }}
+                          className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                        />
+                        <span className="text-sm font-medium text-gray-700 capitalize">{metric}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="flex flex-wrap gap-3">
+                  <button 
+                    onClick={() => {
+                      setAggCurrentPage(0) // Reset to first page when generating new aggregation
+                      fetchPaginatedAggregatedData()
+                    }} 
+                    disabled={loading || clickedMetrics.length === 0}
+                    className="btn-primary flex items-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    Generate Aggregation
+                  </button>
+                  
+                  {aggregatedData.length > 0 && (
+                    <>
+                      <button 
+                        onClick={exportToCsv}
+                        disabled={loading || clickedMetrics.length === 0}
+                        className="btn-success flex items-center gap-2"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Export CSV
+                      </button>
+                      
+                      <button 
+                        onClick={exportToJson}
+                        disabled={loading || clickedMetrics.length === 0}
+                        className="btn-info flex items-center gap-2"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                        </svg>
+                        Export JSON
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+              
+              {aggregatedData.length > 0 ? (
+                <div className="mt-8">
+                  <div className="flex items-center gap-2 mb-4">
+                    <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h4 className="text-lg font-semibold text-gray-900">Aggregated Results</h4>
+                  </div>
+                  
+                  <div className="table-container">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="table-header">
+                          {groupByDimensions.map(dim => (
+                            <th key={dim} className="table-cell text-left font-semibold capitalize">
+                              {dim}
+                            </th>
+                          ))}
+                          {selectedMetrics.includes('spent') && (
+                            <th 
+                              className="table-cell text-right font-semibold cursor-pointer hover:bg-gray-100 transition-colors" 
+                              onClick={() => handleSort('spent')}
+                            >
+                              <div className="flex items-center justify-end gap-1">
+                                Total Spent
+                                {sortBy === 'spent' && (
+                                  <svg className={`w-4 h-4 ${sortDirection === 'asc' ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                  </svg>
+                                )}
+                              </div>
+                            </th>
+                          )}
+                          {selectedMetrics.includes('impressions') && (
+                            <th 
+                              className="table-cell text-right font-semibold cursor-pointer hover:bg-gray-100 transition-colors" 
+                              onClick={() => handleSort('impressions')}
+                            >
+                              <div className="flex items-center justify-end gap-1">
+                                Total Impressions
+                                {sortBy === 'impressions' && (
+                                  <svg className={`w-4 h-4 ${sortDirection === 'asc' ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                  </svg>
+                                )}
+                              </div>
+                            </th>
+                          )}
+                          {selectedMetrics.includes('clicks') && (
+                            <th 
+                              className="table-cell text-right font-semibold cursor-pointer hover:bg-gray-100 transition-colors" 
+                              onClick={() => handleSort('clicks')}
+                            >
+                              <div className="flex items-center justify-end gap-1">
+                                Total Clicks
+                                {sortBy === 'clicks' && (
+                                  <svg className={`w-4 h-4 ${sortDirection === 'asc' ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                  </svg>
+                                )}
+                              </div>
+                            </th>
+                          )}
+                          <th className="table-cell text-right font-semibold">Records</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {aggregatedData.map((row, i) => (
+                          <tr key={i} className="table-row">
+                            {groupByDimensions.map(dim => (
+                              <td key={dim} className="table-cell">
+                                {row.dimensions[dim] || '-'}
+                              </td>
+                            ))}
+                            {selectedMetrics.includes('spent') && (
+                              <td className="table-cell text-right font-mono">
+                                ${row.totalSpent.toFixed(2)}
+                              </td>
+                            )}
+                            {selectedMetrics.includes('impressions') && (
+                              <td className="table-cell text-right font-mono">
+                                {row.totalImpressions.toLocaleString()}
+                              </td>
+                            )}
+                            {selectedMetrics.includes('clicks') && (
+                              <td className="table-cell text-right font-mono">
+                                {row.totalClicks.toLocaleString()}
+                              </td>
+                            )}
+                            <td className="table-cell text-right font-mono">
+                              {row.recordCount}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  
+                  {/* Aggregation Pagination Controls */}
+                  <div className="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <label className="text-sm font-medium text-gray-700">Page size:</label>
+                        <select 
+                          value={aggPageSize} 
+                          onChange={(e) => {
+                            setAggPageSize(Number(e.target.value))
+                            setAggCurrentPage(0) // Reset to first page when changing page size
+                          }}
+                          className="select-field text-sm"
+                        >
+                          <option value={5}>5</option>
+                          <option value={10}>10</option>
+                          <option value={20}>20</option>
+                          <option value={50}>50</option>
+                        </select>
+                      </div>
+                      <span className="text-sm text-gray-600">
+                        Total: <span className="font-semibold">{aggTotalElements}</span> aggregated records
+                      </span>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => setAggCurrentPage(0)}
+                        disabled={aggCurrentPage === 0}
+                        className={`pagination-btn ${aggCurrentPage === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      >
+                        First
+                      </button>
+                      <button 
+                        onClick={() => setAggCurrentPage(aggCurrentPage - 1)}
+                        disabled={aggCurrentPage === 0}
+                        className={`pagination-btn ${aggCurrentPage === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      >
+                        Previous
+                      </button>
+                      
+                      <span className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded">
+                        Page {aggCurrentPage + 1} of {aggTotalPages}
+                      </span>
+                      
+                      <button 
+                        onClick={() => setAggCurrentPage(aggCurrentPage + 1)}
+                        disabled={aggCurrentPage >= aggTotalPages - 1}
+                        className={`pagination-btn ${aggCurrentPage >= aggTotalPages - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      >
+                        Next
+                      </button>
+                      <button 
+                        onClick={() => setAggCurrentPage(aggTotalPages - 1)}
+                        disabled={aggCurrentPage >= aggTotalPages - 1}
+                        className={`pagination-btn ${aggCurrentPage >= aggTotalPages - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      >
+                        Last
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+
+            {/* Raw Data Section */}
+            <div className="card">
+              <div className="flex items-center gap-2 mb-6">
+                <svg className="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                </svg>
+                <h3 className="text-xl font-semibold text-gray-900">Raw Data</h3>
+              </div>
+              
+              <div className="table-container">
+                <table className="w-full">
+                  <thead>
+                    <tr className="table-header">
+                      <th className="table-cell text-left font-semibold">Day</th>
+                      <th className="table-cell text-left font-semibold">Campaign</th>
+                      <th className="table-cell text-left font-semibold">Country</th>
+                      <th className="table-cell text-left font-semibold">Platform</th>
+                      <th className="table-cell text-left font-semibold">Browser</th>
+                      <th className="table-cell text-right font-semibold">Spent</th>
+                      <th className="table-cell text-right font-semibold">Impressions</th>
+                      <th className="table-cell text-right font-semibold">Clicks</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {adMetrics.map((ad, i) => (
+                      <tr key={i} className="table-row">
+                        <td className="table-cell">{ad.day}</td>
+                        <td className="table-cell">{ad.campaign}</td>
+                        <td className="table-cell">{ad.country}</td>
+                        <td className="table-cell">{ad.platform}</td>
+                        <td className="table-cell">{ad.browser}</td>
+                        <td className="table-cell text-right font-mono">${ad.spent.toFixed(2)}</td>
+                        <td className="table-cell text-right font-mono">{ad.impressions.toLocaleString()}</td>
+                        <td className="table-cell text-right font-mono">{ad.clicks.toLocaleString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              
+              {/* Pagination Controls */}
+              <div className="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <label className="text-sm font-medium text-gray-700">Page size:</label>
                     <select 
-                      value={aggPageSize} 
+                      value={pageSize} 
                       onChange={(e) => {
-                        setAggPageSize(Number(e.target.value))
-                        setAggCurrentPage(0) // Reset to first page when changing page size
+                        setPageSize(Number(e.target.value))
+                        setCurrentPage(0) // Reset to first page when changing page size
                       }}
-                      style={{ padding: 4, fontSize: '14px' }}
+                      className="select-field text-sm"
                     >
                       <option value={5}>5</option>
                       <option value={10}>10</option>
                       <option value={20}>20</option>
                       <option value={50}>50</option>
                     </select>
-                    <span>Total: {aggTotalElements} aggregated records</span>
                   </div>
+                  <span className="text-sm text-gray-600">
+                    Total: <span className="font-semibold">{totalElements}</span> records
+                  </span>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={() => setCurrentPage(0)}
+                    disabled={currentPage === 0}
+                    className={`pagination-btn ${currentPage === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    First
+                  </button>
+                  <button 
+                    onClick={() => setCurrentPage(currentPage - 1)}
+                    disabled={currentPage === 0}
+                    className={`pagination-btn ${currentPage === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    Previous
+                  </button>
                   
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <button 
-                      onClick={() => setAggCurrentPage(0)}
-                      disabled={aggCurrentPage === 0}
-                      style={{ 
-                        padding: '4px 8px', 
-                        fontSize: '14px',
-                        backgroundColor: aggCurrentPage === 0 ? '#f5f5f5' : '#007bff',
-                        color: aggCurrentPage === 0 ? '#999' : 'white',
-                        border: '1px solid #ddd',
-                        borderRadius: 4,
-                        cursor: aggCurrentPage === 0 ? 'not-allowed' : 'pointer'
-                      }}
-                    >
-                      First
-                    </button>
-                    <button 
-                      onClick={() => setAggCurrentPage(aggCurrentPage - 1)}
-                      disabled={aggCurrentPage === 0}
-                      style={{ 
-                        padding: '4px 8px', 
-                        fontSize: '14px',
-                        backgroundColor: aggCurrentPage === 0 ? '#f5f5f5' : '#007bff',
-                        color: aggCurrentPage === 0 ? '#999' : 'white',
-                        border: '1px solid #ddd',
-                        borderRadius: 4,
-                        cursor: aggCurrentPage === 0 ? 'not-allowed' : 'pointer'
-                      }}
-                    >
-                      Previous
-                    </button>
-                    
-                    <span style={{ padding: '4px 8px', fontSize: '14px' }}>
-                      Page {aggCurrentPage + 1} of {aggTotalPages}
-                    </span>
-                    
-                    <button 
-                      onClick={() => setAggCurrentPage(aggCurrentPage + 1)}
-                      disabled={aggCurrentPage >= aggTotalPages - 1}
-                      style={{ 
-                        padding: '4px 8px', 
-                        fontSize: '14px',
-                        backgroundColor: aggCurrentPage >= aggTotalPages - 1 ? '#f5f5f5' : '#007bff',
-                        color: aggCurrentPage >= aggTotalPages - 1 ? '#999' : 'white',
-                        border: '1px solid #ddd',
-                        borderRadius: 4,
-                        cursor: aggCurrentPage >= aggTotalPages - 1 ? 'not-allowed' : 'pointer'
-                      }}
-                    >
-                      Next
-                    </button>
-                    <button 
-                      onClick={() => setAggCurrentPage(aggTotalPages - 1)}
-                      disabled={aggCurrentPage >= aggTotalPages - 1}
-                      style={{ 
-                        padding: '4px 8px', 
-                        fontSize: '14px',
-                        backgroundColor: aggCurrentPage >= aggTotalPages - 1 ? '#f5f5f5' : '#007bff',
-                        color: aggCurrentPage >= aggTotalPages - 1 ? '#999' : 'white',
-                        border: '1px solid #ddd',
-                        borderRadius: 4,
-                        cursor: aggCurrentPage >= aggTotalPages - 1 ? 'not-allowed' : 'pointer'
-                      }}
-                    >
-                      Last
-                    </button>
-                  </div>
+                  <span className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded">
+                    Page {currentPage + 1} of {totalPages}
+                  </span>
+                  
+                  <button 
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                    disabled={currentPage >= totalPages - 1}
+                    className={`pagination-btn ${currentPage >= totalPages - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    Next
+                  </button>
+                  <button 
+                    onClick={() => setCurrentPage(totalPages - 1)}
+                    disabled={currentPage >= totalPages - 1}
+                    className={`pagination-btn ${currentPage >= totalPages - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    Last
+                  </button>
                 </div>
               </div>
-            )}
-          </div>
-
-          <div style={{ overflowX: 'auto' }}>
-            <h3>Raw Data</h3>
-            <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: '14px' }}>
-              <thead>
-                <tr style={{ backgroundColor: '#f5f5f5' }}>
-                  <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left' }}>Day</th>
-                  <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left' }}>Campaign</th>
-                  <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left' }}>Country</th>
-                  <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left' }}>Platform</th>
-                  <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left' }}>Browser</th>
-                  <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>Spent</th>
-                  <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>Impressions</th>
-                  <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>Clicks</th>
-                </tr>
-              </thead>
-              <tbody>
-                {adMetrics.map((ad, i) => (
-                  <tr key={i}>
-                    <td style={{ border: '1px solid #ddd', padding: 8 }}>{ad.day}</td>
-                    <td style={{ border: '1px solid #ddd', padding: 8 }}>{ad.campaign}</td>
-                    <td style={{ border: '1px solid #ddd', padding: 8 }}>{ad.country}</td>
-                    <td style={{ border: '1px solid #ddd', padding: 8 }}>{ad.platform}</td>
-                    <td style={{ border: '1px solid #ddd', padding: 8 }}>{ad.browser}</td>
-                    <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>${ad.spent.toFixed(2)}</td>
-                    <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>{ad.impressions.toLocaleString()}</td>
-                    <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>{ad.clicks.toLocaleString()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          
-          {/* Pagination Controls */}
-          <div style={{ marginTop: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-              <span>Page size:</span>
-              <select 
-                value={pageSize} 
-                onChange={(e) => {
-                  setPageSize(Number(e.target.value))
-                  setCurrentPage(0) // Reset to first page when changing page size
-                }}
-                style={{ padding: 4, fontSize: '14px' }}
-              >
-                <option value={5}>5</option>
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={50}>50</option>
-              </select>
-              <span>Total: {totalElements} records</span>
-            </div>
-            
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <button 
-                onClick={() => setCurrentPage(0)}
-                disabled={currentPage === 0}
-                style={{ 
-                  padding: '4px 8px', 
-                  fontSize: '14px',
-                  backgroundColor: currentPage === 0 ? '#f5f5f5' : '#007bff',
-                  color: currentPage === 0 ? '#999' : 'white',
-                  border: '1px solid #ddd',
-                  borderRadius: 4,
-                  cursor: currentPage === 0 ? 'not-allowed' : 'pointer'
-                }}
-              >
-                First
-              </button>
-              <button 
-                onClick={() => setCurrentPage(currentPage - 1)}
-                disabled={currentPage === 0}
-                style={{ 
-                  padding: '4px 8px', 
-                  fontSize: '14px',
-                  backgroundColor: currentPage === 0 ? '#f5f5f5' : '#007bff',
-                  color: currentPage === 0 ? '#999' : 'white',
-                  border: '1px solid #ddd',
-                  borderRadius: 4,
-                  cursor: currentPage === 0 ? 'not-allowed' : 'pointer'
-                }}
-              >
-                Previous
-              </button>
-              
-              <span style={{ padding: '4px 8px', fontSize: '14px' }}>
-                Page {currentPage + 1} of {totalPages}
-              </span>
-              
-              <button 
-                onClick={() => setCurrentPage(currentPage + 1)}
-                disabled={currentPage >= totalPages - 1}
-                style={{ 
-                  padding: '4px 8px', 
-                  fontSize: '14px',
-                  backgroundColor: currentPage >= totalPages - 1 ? '#f5f5f5' : '#007bff',
-                  color: currentPage >= totalPages - 1 ? '#999' : 'white',
-                  border: '1px solid #ddd',
-                  borderRadius: 4,
-                  cursor: currentPage >= totalPages - 1 ? 'not-allowed' : 'pointer'
-                }}
-              >
-                Next
-              </button>
-              <button 
-                onClick={() => setCurrentPage(totalPages - 1)}
-                disabled={currentPage >= totalPages - 1}
-                style={{ 
-                  padding: '4px 8px', 
-                  fontSize: '14px',
-                  backgroundColor: currentPage >= totalPages - 1 ? '#f5f5f5' : '#007bff',
-                  color: currentPage >= totalPages - 1 ? '#999' : 'white',
-                  border: '1px solid #ddd',
-                  borderRadius: 4,
-                  cursor: currentPage >= totalPages - 1 ? 'not-allowed' : 'pointer'
-                }}
-              >
-                Last
-              </button>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }
