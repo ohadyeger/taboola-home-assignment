@@ -13,6 +13,10 @@ A comprehensive full-stack application for analyzing advertising metrics with ad
 - **Admin Panel**: Admin users can view all data across all accounts
 - **Responsive UI**: Modern, mobile-friendly interface built with Tailwind CSS
 
+## 📋 Documentation
+
+- **[Design Document](DESIGN.md)** - Comprehensive technical architecture and design decisions
+
 ## 🏗️ Architecture
 
 ### Technology Stack
