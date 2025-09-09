@@ -58,4 +58,20 @@ public class AdMetricsController {
             return ResponseEntity.ok(countries);
         }
     }
+
+    @GetMapping("/campaigns")
+    public ResponseEntity<List<String>> getAvailableCampaigns(Authentication auth) {
+        UserPrincipal user = (UserPrincipal) auth.getPrincipal();
+        UUID userId = user.getUserId();
+        String userEmail = user.getEmail();
+        
+        // If user is admin, return all campaigns; otherwise return only their own
+        if (adminEmail.equals(userEmail)) {
+            List<String> campaigns = adMetricsService.getAvailableCampaigns();
+            return ResponseEntity.ok(campaigns);
+        } else {
+            List<String> campaigns = adMetricsService.getAvailableCampaignsByAccountId(userId);
+            return ResponseEntity.ok(campaigns);
+        }
+    }
 }

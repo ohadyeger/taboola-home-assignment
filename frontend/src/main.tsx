@@ -31,6 +31,8 @@ const App: React.FC = () => {
   const [selectedMetrics, setSelectedMetrics] = React.useState<string[]>([])
   const [availableCountries, setAvailableCountries] = React.useState<string[]>([])
   const [selectedCountry, setSelectedCountry] = React.useState<string>('All')
+  const [availableCampaigns, setAvailableCampaigns] = React.useState<string[]>([])
+  const [selectedCampaign, setSelectedCampaign] = React.useState<string>('All')
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | undefined>()
 
@@ -53,6 +55,14 @@ const App: React.FC = () => {
       .catch(e => setError(String(e)))
   }, [token])
 
+  const fetchAvailableCampaigns = React.useCallback(() => {
+    if (!token) return
+    fetch(`${apiUrl}/api/ads/campaigns`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
+      .then((data: string[]) => setAvailableCampaigns(data))
+      .catch(e => setError(String(e)))
+  }, [token])
+
   const fetchAggregatedData = React.useCallback(() => {
     if (!token) return
     setLoading(true)
@@ -66,7 +76,8 @@ const App: React.FC = () => {
       body: JSON.stringify({
         groupBy: clickedDimensions,
         metrics: clickedMetrics,
-        countryFilter: selectedCountry
+        countryFilter: selectedCountry,
+        campaignFilter: selectedCampaign
       })
     })
       .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
@@ -77,10 +88,11 @@ const App: React.FC = () => {
         setGroupByDimensions(clickedDimensions)
         setLoading(false)
       })
-  }, [token, clickedDimensions, clickedMetrics, selectedCountry])
+  }, [token, clickedDimensions, clickedMetrics, selectedCountry, selectedCampaign])
 
   React.useEffect(() => { fetchAdMetrics() }, [fetchAdMetrics])
   React.useEffect(() => { fetchAvailableCountries() }, [fetchAvailableCountries])
+  React.useEffect(() => { fetchAvailableCampaigns() }, [fetchAvailableCampaigns])
 
   const submitAuth = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -154,18 +166,33 @@ const App: React.FC = () => {
           
           <div style={{ marginBottom: 32 }}>
             <h3>Filters</h3>
-            <div style={{ marginBottom: 16 }}>
-              <label style={{ display: 'block', marginBottom: 8 }}>Country:</label>
-              <select 
-                value={selectedCountry} 
-                onChange={(e) => setSelectedCountry(e.target.value)}
-                style={{ padding: 8, fontSize: '14px', minWidth: 120 }}
-              >
-                <option value="All">All</option>
-                {availableCountries.map(country => (
-                  <option key={country} value={country}>{country}</option>
-                ))}
-              </select>
+            <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', marginBottom: 8 }}>Country:</label>
+                <select 
+                  value={selectedCountry} 
+                  onChange={(e) => setSelectedCountry(e.target.value)}
+                  style={{ padding: 8, fontSize: '14px', minWidth: 120 }}
+                >
+                  <option value="All">All</option>
+                  {availableCountries.map(country => (
+                    <option key={country} value={country}>{country}</option>
+                  ))}
+                </select>
+              </div>
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', marginBottom: 8 }}>Campaign:</label>
+                <select 
+                  value={selectedCampaign} 
+                  onChange={(e) => setSelectedCampaign(e.target.value)}
+                  style={{ padding: 8, fontSize: '14px', minWidth: 120 }}
+                >
+                  <option value="All">All</option>
+                  {availableCampaigns.map(campaign => (
+                    <option key={campaign} value={campaign}>{campaign}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
 

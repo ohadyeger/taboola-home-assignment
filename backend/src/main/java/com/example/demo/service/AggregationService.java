@@ -17,7 +17,7 @@ public class AggregationService {
     }
 
     public List<AggregatedMetrics> getAggregatedData(UUID accountId, List<String> groupByDimensions, 
-                                                    List<String> metrics, String countryFilter, boolean isAdmin) {
+                                                    List<String> metrics, String countryFilter, String campaignFilter, boolean isAdmin) {
         
         // Build the GROUP BY clause
         String groupByClause = groupByDimensions.isEmpty() ? "" : 
@@ -50,6 +50,9 @@ public class AggregationService {
         if (countryFilter != null && !countryFilter.equals("All")) {
             whereConditions.add("country = ?");
         }
+        if (campaignFilter != null && !campaignFilter.equals("All")) {
+            whereConditions.add("campaign = ?");
+        }
         
         String whereClause = whereConditions.isEmpty() ? "" : 
             "WHERE " + String.join(" AND ", whereConditions);
@@ -70,6 +73,9 @@ public class AggregationService {
         }
         if (countryFilter != null && !countryFilter.equals("All")) {
             params.add(countryFilter);
+        }
+        if (campaignFilter != null && !campaignFilter.equals("All")) {
+            params.add(campaignFilter);
         }
         
         if (isAdmin) {

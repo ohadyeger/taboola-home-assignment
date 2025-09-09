@@ -80,4 +80,19 @@ public class AdMetricsService {
             accountId
         );
     }
+
+    public List<String> getAvailableCampaigns() {
+        return jdbcTemplate.queryForList(
+            "SELECT DISTINCT campaign FROM appdb.ads_metrics ORDER BY campaign",
+            String.class
+        );
+    }
+
+    public List<String> getAvailableCampaignsByAccountId(UUID accountId) {
+        return jdbcTemplate.queryForList(
+            "SELECT DISTINCT campaign FROM appdb.ads_metrics WHERE account_id = ? ORDER BY campaign",
+            String.class,
+            accountId
+        );
+    }
 }
