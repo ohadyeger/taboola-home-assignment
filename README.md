@@ -28,7 +28,7 @@ A full-stack application for analyzing advertising metrics with advanced aggrega
 
 Watch the application in action:
 
-[![App Demo](https://img.youtube.com/vi/WT6lRPzhpuA/0.jpg)](https://www.youtube.com/watch?v=WT6lRPzhpuA)
+**[▶️ Watch the demo on YouTube](https://www.youtube.com/watch?v=WT6lRPzhpuA)**
 
 ## 👥 Default Users
 

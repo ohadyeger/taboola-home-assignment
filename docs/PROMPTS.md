@@ -349,7 +349,7 @@ This document lists the various prompts and instructions used to build the Ad Me
 - Inline comments for complex logic
 - Architecture decision records"
 
-### GitHub Actions (if implemented)
+### GitHub Actions
 **Prompt:** "Set up CI/CD pipeline:
 - Automated testing on pull requests
 - Build and deployment automation
