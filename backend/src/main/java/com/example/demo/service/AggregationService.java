@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class AggregationService {
@@ -18,7 +17,7 @@ public class AggregationService {
     }
 
     public List<AggregatedMetrics> getAggregatedData(UUID accountId, List<String> groupByDimensions, 
-                                                    List<String> metrics, String countryFilter, String campaignFilter, String platformFilter, String browserFilter, boolean isAdmin) {
+                                                    List<String> metrics, String countryFilter, String campaignFilter, String platformFilter, String browserFilter, boolean isAdmin, String sortBy, String sortDirection) {
         
         // Build the GROUP BY clause
         String groupByClause = groupByDimensions.isEmpty() ? "" : 
@@ -65,8 +64,30 @@ public class AggregationService {
             "WHERE " + String.join(" AND ", whereConditions);
         
         // Build ORDER BY clause
-        String orderByClause = groupByDimensions.isEmpty() ? "" : 
-            "ORDER BY " + String.join(", ", groupByDimensions);
+        String orderByClause = "";
+        if (sortBy != null && !sortBy.isEmpty()) {
+            String direction = (sortDirection != null && sortDirection.equalsIgnoreCase("desc")) ? "DESC" : "ASC";
+            switch (sortBy.toLowerCase()) {
+                case "spent":
+                    orderByClause = "ORDER BY total_spent " + direction;
+                    break;
+                case "impressions":
+                    orderByClause = "ORDER BY total_impressions " + direction;
+                    break;
+                case "clicks":
+                    orderByClause = "ORDER BY total_clicks " + direction;
+                    break;
+                default:
+                    // Default to group by dimensions if invalid sort field
+                    orderByClause = groupByDimensions.isEmpty() ? "" : 
+                        "ORDER BY " + String.join(", ", groupByDimensions);
+                    break;
+            }
+        } else {
+            // Default ordering by group by dimensions
+            orderByClause = groupByDimensions.isEmpty() ? "" : 
+                "ORDER BY " + String.join(", ", groupByDimensions);
+        }
         
         String sql = String.format(
             "SELECT %s %s FROM appdb.ads_metrics %s %s %s",
@@ -123,7 +144,7 @@ public class AggregationService {
     }
 
     public PaginatedResponse<AggregatedMetrics> getAggregatedDataPaginated(UUID accountId, List<String> groupByDimensions, 
-                                                                          List<String> metrics, String countryFilter, String campaignFilter, String platformFilter, String browserFilter, boolean isAdmin, int page, int size) {
+                                                                          List<String> metrics, String countryFilter, String campaignFilter, String platformFilter, String browserFilter, boolean isAdmin, int page, int size, String sortBy, String sortDirection) {
         
         int offset = page * size;
         
@@ -172,8 +193,30 @@ public class AggregationService {
             "WHERE " + String.join(" AND ", whereConditions);
         
         // Build ORDER BY clause
-        String orderByClause = groupByDimensions.isEmpty() ? "" : 
-            "ORDER BY " + String.join(", ", groupByDimensions);
+        String orderByClause = "";
+        if (sortBy != null && !sortBy.isEmpty()) {
+            String direction = (sortDirection != null && sortDirection.equalsIgnoreCase("desc")) ? "DESC" : "ASC";
+            switch (sortBy.toLowerCase()) {
+                case "spent":
+                    orderByClause = "ORDER BY total_spent " + direction;
+                    break;
+                case "impressions":
+                    orderByClause = "ORDER BY total_impressions " + direction;
+                    break;
+                case "clicks":
+                    orderByClause = "ORDER BY total_clicks " + direction;
+                    break;
+                default:
+                    // Default to group by dimensions if invalid sort field
+                    orderByClause = groupByDimensions.isEmpty() ? "" : 
+                        "ORDER BY " + String.join(", ", groupByDimensions);
+                    break;
+            }
+        } else {
+            // Default ordering by group by dimensions
+            orderByClause = groupByDimensions.isEmpty() ? "" : 
+                "ORDER BY " + String.join(", ", groupByDimensions);
+        }
         
         // Build the main query
         String sql = String.format(

@@ -41,6 +41,8 @@ public class AggregationController {
             String campaignFilter = (String) request.getOrDefault("campaignFilter", "All");
             String platformFilter = (String) request.getOrDefault("platformFilter", "All");
             String browserFilter = (String) request.getOrDefault("browserFilter", "All");
+            String sortBy = (String) request.getOrDefault("sortBy", "");
+            String sortDirection = (String) request.getOrDefault("sortDirection", "asc");
             
             // Validate metrics
             List<String> validMetrics = metrics.stream()
@@ -56,7 +58,7 @@ public class AggregationController {
             
             // Get aggregated data
             List<AggregatedMetrics> result = aggregationService.getAggregatedData(
-                userId, groupByDimensions, validMetrics, countryFilter, campaignFilter, platformFilter, browserFilter, isAdmin
+                userId, groupByDimensions, validMetrics, countryFilter, campaignFilter, platformFilter, browserFilter, isAdmin, sortBy, sortDirection
             );
             
             return ResponseEntity.ok(Map.of(
@@ -101,6 +103,8 @@ public class AggregationController {
             String browserFilter = (String) request.getOrDefault("browserFilter", "All");
             int page = (Integer) request.getOrDefault("page", 0);
             int size = (Integer) request.getOrDefault("size", 10);
+            String sortBy = (String) request.getOrDefault("sortBy", "");
+            String sortDirection = (String) request.getOrDefault("sortDirection", "asc");
             
             // Validate metrics
             List<String> validMetrics = metrics.stream()
@@ -116,7 +120,7 @@ public class AggregationController {
             
             // Get paginated aggregated data
             PaginatedResponse<AggregatedMetrics> result = aggregationService.getAggregatedDataPaginated(
-                userId, groupByDimensions, validMetrics, countryFilter, campaignFilter, platformFilter, browserFilter, isAdmin, page, size
+                userId, groupByDimensions, validMetrics, countryFilter, campaignFilter, platformFilter, browserFilter, isAdmin, page, size, sortBy, sortDirection
             );
             
             Map<String, Object> response = new HashMap<>();

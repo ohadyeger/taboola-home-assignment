@@ -63,6 +63,10 @@ const App: React.FC = () => {
   const [aggTotalPages, setAggTotalPages] = React.useState(0)
   const [aggTotalElements, setAggTotalElements] = React.useState(0)
   const [aggPaginatedData, setAggPaginatedData] = React.useState<PaginatedResponse<AggregatedMetrics> | null>(null)
+  
+  // Sorting state
+  const [sortBy, setSortBy] = React.useState<string>('')
+  const [sortDirection, setSortDirection] = React.useState<'asc' | 'desc'>('asc')
 
   const fetchAdMetrics = React.useCallback(() => {
     if (!token) return
@@ -172,7 +176,9 @@ const App: React.FC = () => {
         platformFilter: selectedPlatform,
         browserFilter: selectedBrowser,
         page: aggCurrentPage,
-        size: aggPageSize
+        size: aggPageSize,
+        sortBy: sortBy,
+        sortDirection: sortDirection
       })
     })
       .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
@@ -196,7 +202,19 @@ const App: React.FC = () => {
         setGroupByDimensions(clickedDimensions)
         setLoading(false)
       })
-  }, [token, clickedDimensions, clickedMetrics, selectedCountry, selectedCampaign, selectedPlatform, selectedBrowser, aggCurrentPage, aggPageSize])
+  }, [token, clickedDimensions, clickedMetrics, selectedCountry, selectedCampaign, selectedPlatform, selectedBrowser, aggCurrentPage, aggPageSize, sortBy, sortDirection])
+
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      // Toggle direction if same field
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+    } else {
+      // Set new field with ascending direction
+      setSortBy(field)
+      setSortDirection('asc')
+    }
+    setAggCurrentPage(0) // Reset to first page when sorting
+  }
 
   React.useEffect(() => { fetchPaginatedAdMetrics() }, [fetchPaginatedAdMetrics])
   React.useEffect(() => { fetchAvailableCountries() }, [fetchAvailableCountries])
@@ -204,12 +222,12 @@ const App: React.FC = () => {
   React.useEffect(() => { fetchAvailablePlatforms() }, [fetchAvailablePlatforms])
   React.useEffect(() => { fetchAvailableBrowsers() }, [fetchAvailableBrowsers])
   
-  // Auto-fetch aggregated data when pagination changes
+  // Auto-fetch aggregated data when pagination or sorting changes
   React.useEffect(() => {
     if (aggTotalElements > 0) { // Only fetch if we have data
       fetchPaginatedAggregatedData()
     }
-  }, [aggCurrentPage, aggPageSize])
+  }, [aggCurrentPage, aggPageSize, sortBy, sortDirection])
 
   const submitAuth = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -410,13 +428,19 @@ const App: React.FC = () => {
                           </th>
                         ))}
                         {selectedMetrics.includes('spent') && (
-                          <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>Total Spent</th>
+                          <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right', cursor: 'pointer' }} onClick={() => handleSort('spent')}>
+                            Total Spent {sortBy === 'spent' && (sortDirection === 'asc' ? '↑' : '↓')}
+                          </th>
                         )}
                         {selectedMetrics.includes('impressions') && (
-                          <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>Total Impressions</th>
+                          <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right', cursor: 'pointer' }} onClick={() => handleSort('impressions')}>
+                            Total Impressions {sortBy === 'impressions' && (sortDirection === 'asc' ? '↑' : '↓')}
+                          </th>
                         )}
                         {selectedMetrics.includes('clicks') && (
-                          <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>Total Clicks</th>
+                          <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right', cursor: 'pointer' }} onClick={() => handleSort('clicks')}>
+                            Total Clicks {sortBy === 'clicks' && (sortDirection === 'asc' ? '↑' : '↓')}
+                          </th>
                         )}
                         <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>Records</th>
                       </tr>
